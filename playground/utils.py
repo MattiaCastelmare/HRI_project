@@ -1,23 +1,18 @@
 import tornado.ioloop
-import tornado.web
+#import tornado.web
 import tornado.websocket
 import socket
-import os
-import sys
-import tornado.gen
-import tornado.ioloop
-import tornado.websocket
-from tornado.httpclient import HTTPRequest
+#import tornado.gen
 
-sys.path.append(os.getenv('PEPPER_TOOLS_HOME') + '/cmd_server')
-server_port = 8888
+# SERVER IP
+# Get the external IP address
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))  # Google's public DNS server
+IPAddress = s.getsockname()[0]
+print('Your Computer IP Address is: ' + IPAddress)
 
-python_path = os.getenv('PYTHONPATH')
-if python_path:
-    sys.path.extend(python_path.split(':'))
-
-import pepper_cmd
-from pepper_cmd import *
-
-# SERVER IP (LOCAL HOST of MY PC )
-websocket_address = "ws://10.90.109.71:8888/websocket"
+# Set the Server IP as the local host (of my PC)
+server_port = "8888"
+#print("Websocket server for Pepper listening on port: " +  server_port)
+websocket_address = "ws://"+IPAddress+":"+server_port+"/websocket"
+print("The server has this address: " + websocket_address)
