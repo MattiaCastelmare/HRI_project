@@ -1,0 +1,8 @@
+prefix=/home/mattia/tutorials/install
+
+Name: first_tutorial
+Description: Description of first_tutorial
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 
