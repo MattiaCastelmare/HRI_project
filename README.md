@@ -5,4 +5,4 @@ This is the project of the course "Human Robot Interaction" (HRI) + "Reasoning A
 Contributors:
 - Mattia Castelmare 1815675
 - Niccolò Piraino  1797094
-- Antonio Scardino
+- Antonio Scardino 2020613
