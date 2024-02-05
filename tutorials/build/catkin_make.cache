@@ -1,2 +1,0 @@
-first_tutorial
--DCATKIN_DEVEL_PREFIX=/home/mattia/workspaces/tutorials/devel -DCMAKE_INSTALL_PREFIX=/home/mattia/workspaces/tutorials/install -G Unix Makefiles
