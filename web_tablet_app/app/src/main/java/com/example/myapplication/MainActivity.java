@@ -126,11 +126,11 @@ public class MainActivity extends AppCompatActivity implements View.OnDragListen
         layers[0] = imageView.getDrawable();
         layers[1] = getGreenBorderDrawable();
         LayerDrawable layerDrawable = new LayerDrawable(layers);
-        imageView.setBackground(layerDrawable);
+        imageView.setBackgroundDrawable(layerDrawable);
     }
 
     private void unhighlightView(ImageView imageView) {
-        imageView.setBackground(null);
+        imageView.setBackgroundDrawable(null);
     }
 
     private Drawable getGreenBorderDrawable() {
