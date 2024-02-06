@@ -27,12 +27,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createPuzzleLayout() {
+        wsc.sendMessage("Game started !");
         // Handle the button click and transition to the Puzzle layout
         setContentView(R.layout.activity_main);
         // Get the GridLayout from the new layout
         GridLayout gridLayout = findViewById(R.id.gridLayout);
         // Create dynamic class to modify it
-        Puzzle puzzle = new Puzzle(gridLayout, this);
+        Puzzle puzzle = new Puzzle(gridLayout, this, wsc);
     }
 }
 
