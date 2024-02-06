@@ -6,21 +6,24 @@ import android.widget.GridLayout;
 import android.widget.Button;
 import android.view.View;
 
-
 public class MainActivity extends AppCompatActivity {
+    private WebSocketClient wsc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.button);
-        // Set up the Play button
-        Button playButton = findViewById(R.id.playButton);
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createPuzzleLayout();
-            }
-        });
+
+        // Connect to Server in a separate thread
+        new Thread(() -> {
+            wsc = new WebSocketClient(Constants.SERVER_URL);
+            // You can perform UI updates after the connection is established
+            runOnUiThread(() -> {
+                // Set up the Play button
+                Button playButton = findViewById(R.id.playButton);
+                playButton.setOnClickListener(view -> createPuzzleLayout());
+            });
+        }).start();
     }
 
     private void createPuzzleLayout() {

@@ -1,51 +1,54 @@
 package com.example.myapplication;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
 
-import javax.websocket.*;
+public class WebSocketClient extends WebSocketListener {
+    private WebSocket webSocket;
 
-@ClientEndpoint
-public class WebSocketClient {
-
-    private WebSocketContainer container;
-    private Session userSession;
-
-    public WebSocketClient() {
-        container = ContainerProvider.getWebSocketContainer();
+    public WebSocketClient(String url) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(url).build();
+        webSocket = client.newWebSocket(request, this);
     }
 
-    public void connect(String serverUrl) {
-        try {
-            userSession = container.connectToServer(this, new URI(serverUrl));
-        } catch (DeploymentException | URISyntaxException | IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendMessage(String message) throws IOException {
-        userSession.getBasicRemote().sendText(message);
-    }
-
-    @OnOpen
-    public void onOpen(Session session) {
+    @Override
+    public void onOpen(WebSocket webSocket, Response response) {
         System.out.println("Connected to WebSocket server");
     }
 
-    @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
-        System.out.println("Disconnected from WebSocket server: " + closeReason);
-    }
-
-    @OnMessage
-    public void onMessage(String message) {
-        System.out.println("Received message from server: " + message);
+    @Override
+    public void onMessage(WebSocket webSocket, String text) {
+        System.out.println("Received message from server: " + text);
         // Process the received message
     }
 
-    public void disconnect() throws IOException {
-        userSession.close();
+    @Override
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
+        // Handle binary messages if needed
+    }
+
+    @Override
+    public void onClosed(WebSocket webSocket, int code, String reason) {
+        System.out.println("Disconnected from WebSocket server: " + reason);
+    }
+
+    @Override
+    public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+        t.printStackTrace();
+    }
+
+    public void sendMessage(String message) {
+        webSocket.send(message);
+    }
+
+    public void disconnect() {
+        webSocket.close(1000, "Disconnecting");
     }
 }
+
 
