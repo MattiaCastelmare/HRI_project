@@ -1,5 +1,4 @@
 package com.example.myapplication;
-
 import android.content.ClipData;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -16,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -28,100 +26,17 @@ public class MainActivity extends AppCompatActivity implements View.OnDragListen
     private ImageView firstClickedImageView;
     private int firstClickedPosition = -1;
     private GridLayout gridLayout;
-    private static final String SERVER_URL = "http://10.0.2.2:8081/";
+    private static final String SERVER_URL = "ws://192.168.1.105:8888/websocket";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         gridLayout = findViewById(R.id.gridLayout);
-
-        executeGetRequest(); // Execute the GET request to server
-
-        // Delay before sending the POST request
-        new Handler().postDelayed(() -> sendStringToServer("Hello server"), 2000);
-
+        TestConnection tc
         initializeGridView(); // Initialize the grid view with shuffled images
     }
 
-    private void executeGetRequest() {
-        new Thread(() -> {
-            try {
-                URL url = new URL(SERVER_URL);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setDoOutput(true);
-
-                JSONObject postData = new JSONObject();
-                postData.put("message", "Hello, Server!");
-
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = postData.toString().getBytes("utf-8");
-                    os.write(input, 0, input.length);
-                }
-
-                int responseCode = conn.getResponseCode();
-                Log.d(TAG, "Response Code: " + responseCode);
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // Handle successful response
-                } else {
-                    Log.d(TAG, "Failed to send message. Response Code: " + responseCode);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "Failed to connect to the web server");
-            }
-        }).start();
-    }
-
-    private void sendStringToServer(final String message) {
-        new Thread(() -> {
-            try {
-                URL url = new URL(SERVER_URL);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setDoOutput(true);
-
-                JSONObject postData = new JSONObject();
-                postData.put("message", message);
-
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = postData.toString().getBytes("utf-8");
-                    os.write(input, 0, input.length);
-                }
-
-                int responseCode = conn.getResponseCode();
-                Log.d(TAG, "Response Code: " + responseCode);
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // Message sent successfully
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                    StringBuilder responseStringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        responseStringBuilder.append(line).append('\n');
-                    }
-                    reader.close();
-
-                    Log.d(TAG, "Server Response: " + responseStringBuilder.toString());
-
-                    // Parse the JSON response
-                    JSONObject responseData = new JSONObject(responseStringBuilder.toString());
-                    int number1 = responseData.getInt("number1");
-                    int number2 = responseData.getInt("number2");
-
-                    // Swap the corresponding puzzle pieces
-                    swapPuzzlePieces(number1, number2);
-                } else {
-                    Log.d(TAG, "Failed to send message. Response Code: " + responseCode);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "Failed to connect to the web server");
-            }
-        }).start();
-    }
 
     private void initializeGridView() {
         int childCount = gridLayout.getChildCount();
