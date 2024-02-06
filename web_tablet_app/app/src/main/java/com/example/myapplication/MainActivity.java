@@ -14,7 +14,6 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -31,123 +30,100 @@ public class MainActivity extends AppCompatActivity implements View.OnDragListen
     private GridLayout gridLayout;
     private static final String SERVER_URL = "http://10.0.2.2:8081/";
 
-    private void sendStringToServer(final String message) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL(SERVER_URL);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoOutput(true);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        gridLayout = findViewById(R.id.gridLayout);
 
-                    JSONObject postData = new JSONObject();
-                    postData.put("message", message);
+        executeGetRequest(); // Execute the GET request to server
 
-                    try (OutputStream os = conn.getOutputStream()) {
-                        byte[] input = postData.toString().getBytes("utf-8");
-                        os.write(input, 0, input.length);
-                    }
+        // Delay before sending the POST request
+        new Handler().postDelayed(() -> sendStringToServer("Hello server"), 2000);
 
-                    int responseCode = conn.getResponseCode();
-                    Log.d(TAG, "Response Code: " + responseCode);
+        initializeGridView(); // Initialize the grid view with shuffled images
+    }
 
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        Log.d(TAG, "Message sent successfully");
+    private void executeGetRequest() {
+        new Thread(() -> {
+            try {
+                URL url = new URL(SERVER_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
 
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                        StringBuilder responseStringBuilder = new StringBuilder();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            responseStringBuilder.append(line).append('\n');
-                        }
-                        reader.close();
+                JSONObject postData = new JSONObject();
+                postData.put("message", "Hello, Server!");
 
-                        Log.d(TAG, "Server Response: " + responseStringBuilder.toString());
-
-                        // Parse the JSON response
-                        JSONObject responseData = new JSONObject(responseStringBuilder.toString());
-                        int number1 = responseData.getInt("number1");
-                        int number2 = responseData.getInt("number2");
-
-                        // Swap the corresponding puzzle pieces
-                        swapPuzzlePieces(number1, number2);
-
-                    } else {
-                        Log.d(TAG, "Failed to send message. Response Code: " + responseCode);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "It does not connect to the web server");
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = postData.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
                 }
+
+                int responseCode = conn.getResponseCode();
+                Log.d(TAG, "Response Code: " + responseCode);
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    // Handle successful response
+                } else {
+                    Log.d(TAG, "Failed to send message. Response Code: " + responseCode);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "Failed to connect to the web server");
             }
         }).start();
     }
 
+    private void sendStringToServer(final String message) {
+        new Thread(() -> {
+            try {
+                URL url = new URL(SERVER_URL);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
 
+                JSONObject postData = new JSONObject();
+                postData.put("message", message);
 
-    @Override
-
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        gridLayout = findViewById(R.id.gridLayout);
-
-        // Execute the GET request
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL(SERVER_URL);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoOutput(true);
-
-                    JSONObject postData = new JSONObject();
-                    postData.put("message", "Hello, Server!");
-
-                    try (OutputStream os = conn.getOutputStream()) {
-                        byte[] input = postData.toString().getBytes("utf-8");
-                        os.write(input, 0, input.length);
-                    }
-
-                    int responseCode = conn.getResponseCode();
-                    Log.d(TAG, "Response Code: " + responseCode);
-
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        Log.d(TAG, "Message sent successfully");
-
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                        StringBuilder responseStringBuilder = new StringBuilder();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            responseStringBuilder.append(line).append('\n');
-                        }
-                        reader.close();
-
-                        Log.d(TAG, "Server Response: " + responseStringBuilder.toString());
-
-                    } else {
-                        Log.d(TAG, "Failed to send message. Response Code: " + responseCode);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "It does not connect to the web server");
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = postData.toString().getBytes("utf-8");
+                    os.write(input, 0, input.length);
                 }
+
+                int responseCode = conn.getResponseCode();
+                Log.d(TAG, "Response Code: " + responseCode);
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    // Message sent successfully
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder responseStringBuilder = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        responseStringBuilder.append(line).append('\n');
+                    }
+                    reader.close();
+
+                    Log.d(TAG, "Server Response: " + responseStringBuilder.toString());
+
+                    // Parse the JSON response
+                    JSONObject responseData = new JSONObject(responseStringBuilder.toString());
+                    int number1 = responseData.getInt("number1");
+                    int number2 = responseData.getInt("number2");
+
+                    // Swap the corresponding puzzle pieces
+                    swapPuzzlePieces(number1, number2);
+                } else {
+                    Log.d(TAG, "Failed to send message. Response Code: " + responseCode);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "Failed to connect to the web server");
             }
         }).start();
+    }
 
-        // Delay before sending the POST request
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendStringToServer("Hello server");
-            }
-        }, 1000); // Delay in milliseconds (adjust as needed)
-
+    private void initializeGridView() {
         int childCount = gridLayout.getChildCount();
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < childCount; i++) {
@@ -162,30 +138,23 @@ public class MainActivity extends AppCompatActivity implements View.OnDragListen
             child.setImageResource(imageResourceId);
             Log.d(TAG, "ImageView " + (i + 1) + ": Set Image Resource to " + imageResourceId);
 
-            child.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (firstClickedImageView == null) {
-                        firstClickedImageView = child;
-                        firstClickedPosition = currentPosition;
-                    } else {
-                        swapImages(firstClickedImageView, child);
-                        firstClickedImageView = null;
-                        firstClickedPosition = -1;
-                    }
+            child.setOnClickListener(view -> {
+                if (firstClickedImageView == null) {
+                    firstClickedImageView = child;
+                    firstClickedPosition = currentPosition;
+                } else {
+                    swapImages(firstClickedImageView, child);
+                    firstClickedImageView = null;
+                    firstClickedPosition = -1;
                 }
-
             });
 
             child.setOnDragListener(this);
-            child.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    ClipData data = ClipData.newPlainText("", "");
-                    View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
-                    view.startDrag(data, shadowBuilder, view, 0);
-                    return true;
-                }
+            child.setOnLongClickListener(view -> {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                return true;
             });
         }
         Log.d(TAG, "Swapped indices: " + indices.toString());
@@ -228,12 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnDragListen
         firstImageView.setImageDrawable(secondImage);
         secondImageView.setImageDrawable(firstImage);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                updateIndicesTextView(firstClickedPosition, gridLayout.indexOfChild(firstImageView), gridLayout.indexOfChild(secondImageView));
-            }
-        }, 500); // Delay in milliseconds (adjust as needed)
+        new Handler().postDelayed(() -> updateIndicesTextView(firstClickedPosition, gridLayout.indexOfChild(firstImageView), gridLayout.indexOfChild(secondImageView)), 500); // Delay in milliseconds (adjust as needed)
     }
 
     private void updateIndicesTextView(int firstIndex, int firstImageIndex, int secondImageIndex) {
@@ -259,23 +223,20 @@ public class MainActivity extends AppCompatActivity implements View.OnDragListen
         borderDrawable.setStroke(5, 0xFF00FF00);
         return borderDrawable;
     }
+
     private void swapPuzzlePieces(final int position1, final int position2) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ImageView imageView1 = (ImageView) gridLayout.getChildAt(position1);
-                ImageView imageView2 = (ImageView) gridLayout.getChildAt(position2);
+        runOnUiThread(() -> {
+            ImageView imageView1 = (ImageView) gridLayout.getChildAt(position1);
+            ImageView imageView2 = (ImageView) gridLayout.getChildAt(position2);
 
-                Drawable image1 = imageView1.getDrawable();
-                Drawable image2 = imageView2.getDrawable();
+            Drawable image1 = imageView1.getDrawable();
+            Drawable image2 = imageView2.getDrawable();
 
-                imageView1.setImageDrawable(image2);
-                imageView2.setImageDrawable(image1);
+            imageView1.setImageDrawable(image2);
+            imageView2.setImageDrawable(image1);
 
-                // Update the indices text view
-                updateIndicesTextView(position1, position1, position2);
-            }
+            // Update the indices text view
+            updateIndicesTextView(position1, position1, position2);
         });
     }
-
 }
