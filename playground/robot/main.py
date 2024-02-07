@@ -8,8 +8,8 @@ import pepper_cmd
 from pepper_cmd import *
 
 def main():
-    #begin()
-    #pepper_cmd.robot.say('Hello')
+    begin()
+    pepper_cmd.robot.say('Hello')
     # Create an event loop.
     io_loop = tornado.ioloop.IOLoop.current()
     # Before starting the event loop, instantiate a WebSocketClient and add a
@@ -21,7 +21,6 @@ def main():
     #io_loop.add_callback(client.send_message_from_client("I am listening send me a puzzle"))
     # Start the event loop.
     io_loop.start()
-    
     #end()
 
 if __name__ == "__main__":

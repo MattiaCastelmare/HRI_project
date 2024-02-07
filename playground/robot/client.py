@@ -7,19 +7,22 @@ class PepperClient:
     def __init__(self, io_loop):
         self.connection = None
         self.io_loop = io_loop
-        #self.num_successes = 0
-        #self.num_trials = 0
+        # Set up a periodic callback every 5 seconds to send random numbers
+        self.periodic_callback = tornado.ioloop.PeriodicCallback(self.send_random_numbers, 5000)
+        self.name = "/Pepper"
 
     def start(self):
         self.connect_and_read()
+        # SEND RANDOM INDICES
+        self.periodic_callback.start()
 
     def stop(self):
         self.io_loop.stop()
 
     def connect_and_read(self):
-        print("Connecting to " + websocket_address+ " ...")
+        print("Connecting to " + websocket_address + " ...")
         tornado.websocket.websocket_connect(
-            url=websocket_address,
+            url=websocket_address + self.name,
             callback=self.maybe_retry_connection,
             on_message_callback=self.on_message,
             ping_interval=10,
@@ -47,3 +50,9 @@ class PepperClient:
             print("Sent to the Server: ", message)
         else:
             print("Client not connected.")
+
+    def send_random_numbers(self):
+        # Send two random numbers between 0 and 8 every 5 seconds
+        random_numbers = [random.randint(0, 8) for _ in range(2)]
+        message = "PepperMove: {}".format(','.join(map(str, random_numbers)))
+        self.send_message_from_client(message)

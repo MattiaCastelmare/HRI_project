@@ -15,7 +15,6 @@ public class WebSocketClient extends WebSocketListener {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         webSocket = client.newWebSocket(request, this);
-
     }
     public void initializePuzzle(Puzzle puzzle) {
         this.puzzle = puzzle;
