@@ -9,11 +9,16 @@ import okio.ByteString;
 
 public class WebSocketClient extends WebSocketListener {
     private WebSocket webSocket;
+    private Puzzle puzzle;
 
     public WebSocketClient(String url) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         webSocket = client.newWebSocket(request, this);
+
+    }
+    public void initializePuzzle(Puzzle puzzle) {
+        this.puzzle = puzzle;
     }
 
     @Override
@@ -24,9 +29,18 @@ public class WebSocketClient extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         System.out.println("Received message from server: " + text);
-        // Process the received message
+        if (text.startsWith("PepperMove:")) {
+            // Extract the indices part from the message
+            String indicesPart = text.substring("PepperMove:".length()).trim();
+            // Split the indices
+            String[] indices = indicesPart.split(",");
+            int index1 = Integer.parseInt(indices[0].trim());
+            int index2 = Integer.parseInt(indices[1].trim());
+            // Send indices to the Puzzle
+            puzzle.PepperSwapsPuzzlePieces(index1, index2);
+            System.out.println("Pepper is making a move, swapping: " + index1 + ", " + index2);
+        }
     }
-
     @Override
     public void onMessage(WebSocket webSocket, ByteString bytes) {
         // Handle binary messages if needed

@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -40,7 +41,7 @@ public class Puzzle implements View.OnDragListener{
                 for (int i = 0; i < childCount; i++) {
                         final ImageView child = (ImageView) gridLayout.getChildAt(i);
                         final int currentPosition = i;
-                        int imageIndex = indices.get(i) + 1;
+                        int imageIndex = indices.get(i);
                         int imageResourceId = context.getResources().getIdentifier("patch_" + imageIndex, "drawable", context.getPackageName());
                         child.setImageResource(imageResourceId);
                         // Set the tag to store the position of the ImageView
@@ -100,6 +101,21 @@ public class Puzzle implements View.OnDragListener{
                 Object tag = imageView.getTag();
                 return tag instanceof Integer ? (Integer) tag : -1;
         }
+        private ImageView findImageViewByIndex(int index) {
+                // Iterate through child views of the GridLayout to find the ImageView with the specified index
+                int childCount = gridLayout.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                        View child = gridLayout.getChildAt(i);
+                        if (child instanceof ImageView) {
+                                ImageView imageView = (ImageView) child;
+                                int imageViewIndex = getImageViewIndex(imageView);
+                                if (imageViewIndex == index) {
+                                        return imageView;
+                                }
+                        }
+                }
+                return null; // Return null if ImageView with the specified index is not found
+        }
         // Next classes are relative al on Drag event
         private boolean isDraggedViewCorrect(ImageView targetView, DragEvent event) {
                 View draggedView = (View) event.getLocalState();
@@ -140,5 +156,22 @@ public class Puzzle implements View.OnDragListener{
                 String indices_message = "New indices: " + indices.toString();
                 webSocketClient.sendMessage(swap_message);
                 webSocketClient.sendMessage(indices_message);
+        }
+        public void PepperSwapsPuzzlePieces(int index1, int index2) {
+                // Ensure UI updates are done on the main thread
+                ((Activity) context).runOnUiThread(() -> {
+                        // Locate the corresponding ImageViews in the GridLayout
+                        ImageView firstImageView = findImageViewByIndex(index1);
+                        ImageView secondImageView = findImageViewByIndex(index2);
+                        // Swap the Image Views
+                        Drawable firstImage = firstImageView.getDrawable();
+                        Drawable secondImage = secondImageView.getDrawable();
+                        firstImageView.setImageDrawable(secondImage);
+                        secondImageView.setImageDrawable(firstImage);
+                        // Update the indices in the list
+                        Collections.swap(indices, index1, index2);
+                        System.out.println("Pepper is making a move, swapping: " + index1 + ", " + index2);
+                        // SEND THEM BACK TO PEPPER MAYBE?
+                });
         }
 }

@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         GridLayout gridLayout = findViewById(R.id.gridLayout);
         // Create dynamic class to modify it
         Puzzle puzzle = new Puzzle(gridLayout, this, wsc);
+        // Send the puzzle to the Client
+        wsc.initializePuzzle(puzzle);
     }
 }
 
