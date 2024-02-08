@@ -57,7 +57,6 @@ public class Puzzle implements View.OnDragListener{
                                         firstClickedPosition = -1;
                                 }
                         });
-
                         child.setOnDragListener(this);
                         child.setOnLongClickListener(view -> {
                                 ClipData data = ClipData.newPlainText("", "");
@@ -66,6 +65,7 @@ public class Puzzle implements View.OnDragListener{
                                 return true;
                         });
                 }
+
                 // Send initial random indices to the Server
                 String initial_message = "Initial random indices: " + indices.toString();
                 webSocketClient.sendMessage(initial_message);
