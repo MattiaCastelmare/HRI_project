@@ -3,21 +3,28 @@ from pyperplan import grounding, planner, heuristics, search
 
 from run_planning import run_planning, generate_pddl_file
 import re
+import time
 
-initial_state=[3, 4, 8, 5, 2, 1, 9, 6, 7]
+initial_state=[2, 4, 8, 5, 1, 3, 9, 6, 7, 10, 12, 11]
 
 generate_pddl_file(initial_state)
 
 # Carica il dominio e il problema PDDL
-domain_file = 'domainPuzzle.pddl'
-problem_file = 'problem.pddl'
+domain_file = 'puzzle_domain.pddl'
+problem_file = 'puzzle_problem.pddl'
 
-plan = run_planning(domain_file, problem_file, "gbf", "hadd")
+alg= "ehs"
+heu= "hff" #"hff"
+
+start_time = time.time()
+plan= run_planning(domain_file, problem_file, alg, heu)
+print('perchè non')
+end_time = time.time()
+
+tempo_trascorso = end_time - start_time
+print(f"Tempo di esecuzione di {alg} e heuristica {heu}", tempo_trascorso, "secondi")
 act=str(plan[0])
 act_str=act.split('\n')[0]
-
-plan2= run_planning('puzzle_domain.pddl', 'puzzle_problem.pddl',"gbf", "hadd")
-
 # Definisci il pattern regex per trovare i numeri preceduti da "c"
 pattern = r"c(\d+)"
 
@@ -31,4 +38,3 @@ if len(matches) >= 2:
     
 print(f'Pepper move: {cNumero1},{cNumero2}')
 print(f'The first planning gives:{plan}')
-print(f'the second planning gives:{plan2}')
