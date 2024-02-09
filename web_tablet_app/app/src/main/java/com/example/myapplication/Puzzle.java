@@ -3,7 +3,6 @@ package com.example.myapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
@@ -33,7 +32,7 @@ public class Puzzle {
     ArrayList<Piece> pieces;
     PieceAdapter adapter;
     StaggeredGridLayoutManager layoutManager;
-
+    List<Integer> initial_indices = new ArrayList<>();
     public Puzzle(int difficulty, int[] resolution, Context context, Activity parentActivity) {
         this.parentActivity = parentActivity;
         this.context = context;
@@ -47,7 +46,6 @@ public class Puzzle {
         this.pieces = splitImage();
         addPiecesGrid(pieces);
     }
-
     public void setRandomImage(int[] images) {
         // Get the ImageView
         parentActivity.setContentView(R.layout.variable_image_layout);
@@ -59,7 +57,6 @@ public class Puzzle {
         // Set the image
         mImageView.setImageResource(images[random_id]);
     }
-
     public void getRandomImage(int[] images) {
         // Get a random between 0 and images.length-1
         random_id = (int) (Math.random() * images.length);
@@ -72,7 +69,6 @@ public class Puzzle {
         imageHeight = options.outHeight;
         Log.d(Constants.TAG, "IMAGE Width: " + imageWidth + ", Height: " + imageHeight);
     }
-
     public void ResizeImage() {
         // Check if both dimensions are larger than the screen
         if (imageHeight > screenHeight || imageWidth > screenWidth) {
@@ -85,7 +81,6 @@ public class Puzzle {
             ResizeImage();
         }
     }
-
     public int[] chooseDifficulty(int difficulty) {
         if (difficulty == 1) {
             return Constants.EASY_IMAGES;
@@ -97,7 +92,6 @@ public class Puzzle {
             throw new IllegalArgumentException("Invalid difficulty level: " + difficulty);
         }
     }
-
     private ArrayList<Piece> splitImage() {
         ArrayList<Piece> pieces = new ArrayList<>(Constants.number_of_pieces);
         final ImageView imageView = parentActivity.findViewById(R.id.intact_image);
@@ -111,21 +105,27 @@ public class Puzzle {
         Log.d(Constants.TAG, "Piece Width: " + pieceWidth);
         Log.d(Constants.TAG, "Piece Height: " + pieceHeight);
         // Create each bitmap piece and add it to the resulting array
+        int idx=0;
         int yCord = 0;
         for (int row = 0; row < Constants.rows; row++) {
             int xCord = 0;
             for (int col = 0; col < Constants.cols; col++) {
                 Log.d(Constants.TAG, "X: " + xCord + " Y: " + yCord);
-                Piece piece = new Piece(Bitmap.createBitmap(scaledBitmap, xCord, yCord, pieceWidth, pieceHeight), xCord, yCord);
+                Piece piece = new Piece(Bitmap.createBitmap(scaledBitmap, xCord, yCord, pieceWidth, pieceHeight), xCord, yCord,idx);
                 pieces.add(piece);
                 xCord += pieceWidth;
+                idx++;
             }
             yCord += pieceHeight;
         }
+        // Create random indices
         Collections.shuffle(pieces);
+        for (int i = 0; i < pieces.size(); i++) {
+            int index = pieces.get(i).getIdx();
+            initial_indices.add(index);
+        }
         return pieces;
     }
-
     private void addPiecesGrid(ArrayList<Piece> pieces) {
         parentActivity.setContentView(R.layout.activity_main);
         final RecyclerView recyclerView = parentActivity.findViewById(R.id.grid);
@@ -138,10 +138,8 @@ public class Puzzle {
         recyclerView.addItemDecoration(new SpacesItemDecoration(2));
     }
 }
-
  class SpacesItemDecoration extends RecyclerView.ItemDecoration {
-        private int spacing;
-
+        private final int spacing;
         public SpacesItemDecoration(int spacing) {
             this.spacing = spacing;
         }
@@ -153,7 +151,6 @@ public class Puzzle {
             outRect.bottom = spacing;
         }
     }
-
     class PieceAdapter extends RecyclerView.Adapter<PieceAdapter.PieceViewHolder> {
         private Context context;
         private List<Piece> pieces;
@@ -189,17 +186,18 @@ public class Puzzle {
             }
         }
 }
-
 // Class to store the image (piece of puzzle) and it s predetermined position
 class Piece {
     public Bitmap bitmap;
     private final int x;
     private final int y;
+    private final int initial_index;
 
-    public Piece(Bitmap bitmap, int x, int y) {
+    public Piece(Bitmap bitmap, int x, int y, int idx) {
         this.bitmap = bitmap;
         this.x = x;
         this.y = y;
+        this.initial_index = idx;
     }
     public Bitmap getBitmap() {
         return bitmap;
@@ -209,6 +207,9 @@ class Piece {
     }
     public int getY() {
         return y;
+    }
+    public int getIdx() {
+        return initial_index;
     }
 }
 

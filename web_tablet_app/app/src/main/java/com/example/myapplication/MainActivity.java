@@ -15,6 +15,8 @@ import android.view.Gravity;
 import android.content.Context;
 import android.view.ViewTreeObserver;
 
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
     private WebSocketClient wsc;
@@ -62,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         PieceAdapter adapter = puzzleLayout.adapter;
         StaggeredGridLayoutManager layoutManager = puzzleLayout.layoutManager;
         // Create dynamic class to modify it
-        PuzzleGame puzzleGame = new PuzzleGame(recyclerView, this ,wsc,adapter);
+        List<Integer> initialIndices =puzzleLayout.initial_indices;
+        PuzzleGame puzzleGame = new PuzzleGame(initialIndices,recyclerView, this ,wsc,adapter);
         // Send the puzzle to the Client
         wsc.initializePuzzle(puzzleGame);
     }

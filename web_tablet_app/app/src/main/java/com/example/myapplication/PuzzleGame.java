@@ -8,10 +8,12 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -23,18 +25,19 @@ import java.util.List;
 public class PuzzleGame implements View.OnDragListener{
         private ImageView firstClickedImageView;
         private int firstClickedPosition = -1;
-        private List<Integer> indices = new ArrayList<>();
+        private List<Integer> indices;
         private RecyclerView recyclerView;
         private Context context;
         private PieceAdapter adapter;
         private WebSocketClient webSocketClient;
 
         // Constructor
-        public PuzzleGame(RecyclerView recyclerView, Context context, WebSocketClient webSocketClient,PieceAdapter adapter) {
+        public PuzzleGame(List<Integer> initial_indices, RecyclerView recyclerView, Context context, WebSocketClient webSocketClient,PieceAdapter adapter) {
                 this.recyclerView = recyclerView;
                 this.context = context;
                 this.webSocketClient = webSocketClient;
                 this.adapter= adapter;
+                this.indices = initial_indices;
                 initializeGridView();
         }
         private void initializeGridView() {
@@ -43,37 +46,45 @@ public class PuzzleGame implements View.OnDragListener{
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(adapter);
                 recyclerView.addItemDecoration(new SpacesItemDecoration(2));
-
-                int childCount = recyclerView.getChildCount();
-                for (int i = 0; i < childCount; i++) {
-                        indices.add(i);
-                }
-                Collections.shuffle(indices);
-                for (int i = 0; i < childCount; i++) {
-                        final int currentPosition = i;
-                        Log.d(Constants.TAG, "ImageView " + i + ", Tag: " +recyclerView.getChildAt(currentPosition).getTag());
-                        recyclerView.getChildAt(currentPosition).setOnClickListener(view -> {
-                                if (firstClickedImageView == null) {
-                                        firstClickedImageView = (ImageView) view;
-                                        firstClickedPosition = currentPosition;
-                                } else {
-                                        swapImages(firstClickedImageView, (ImageView) view);
-                                        firstClickedImageView = null;
-                                        firstClickedPosition = -1;
+                // Set up click and drag listeners for each item in the RecyclerView
+                recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+                        @Override
+                        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                                return false;
+                        }
+                        @Override
+                        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                                // Handle touch events here
+                                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                                        handleItemClick(e);
                                 }
-                        });
-                        recyclerView.getChildAt(currentPosition).setOnDragListener(this);
-                        recyclerView.getChildAt(currentPosition).setOnLongClickListener(view -> {
-                                ClipData data = ClipData.newPlainText("", "");
-                                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
-                                view.startDrag(data, shadowBuilder, view, 0);
-                                return true;
-                        });
-                }
+                        }
+                        @Override
+                        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+                                // Not used for click and drag handling
+                        }
+                });
                 // Send initial random indices to the Server
                 String initial_message = "Initial random indices: " + indices.toString();
                 webSocketClient.sendMessage(initial_message);
                 Log.d(Constants.TAG, "Initial random indices: " + indices.toString());
+        }
+        private void handleItemClick(MotionEvent e) {
+                View childView = recyclerView.findChildViewUnder(e.getX(), e.getY());
+                if (childView != null) {
+                        int currentPosition = recyclerView.getChildAdapterPosition(childView);
+                        Log.d(Constants.TAG, "ImageView " + currentPosition + ", Tag: " + childView.getTag());
+                        if (firstClickedImageView == null) {
+                                // First click
+                                firstClickedImageView = (ImageView) childView;
+                                firstClickedPosition = currentPosition;
+                        } else {
+                                // Second click
+                                swapImages(firstClickedImageView, (ImageView) childView);
+                                firstClickedImageView = null;
+                                firstClickedPosition = -1;
+                        }
+                }
         }
         @Override
         public boolean onDrag(View v, DragEvent event) {
@@ -132,17 +143,14 @@ public class PuzzleGame implements View.OnDragListener{
                 LayerDrawable layerDrawable = new LayerDrawable(layers);
                 imageView.setBackgroundDrawable(layerDrawable);
         }
-
         private void unhighlightView(ImageView imageView) {
                 imageView.setBackgroundDrawable(null);
         }
-
         private Drawable getGreenBorderDrawable() {
                 GradientDrawable borderDrawable = new GradientDrawable();
                 borderDrawable.setStroke(5, 0xFF00FF00);
                 return borderDrawable;
         }
-
         private void swapImages(final ImageView firstImageView, final ImageView secondImageView) {
                 // Get the indices from the ImageViews
                 int firstIndex = getImageViewIndex(firstImageView);
