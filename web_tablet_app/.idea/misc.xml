@@ -3,13 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.34322916666666664" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_pepper.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/button.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/button.xml" value="0.6" />
         <entry key="app/src/main/res/layout/colors.xml" value="0.20153985507246377" />
+        <entry key="app/src/main/res/layout/grid.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/images.xml" value="0.1" />
         <entry key="app/src/main/res/layout/index.html" value="0.11727456940222898" />
-        <entry key="app/src/main/res/layout/initial_page.xml" value="0.18" />
-        <entry key="app/src/main/res/layout/main_page.xml" value="0.2109375" />
+        <entry key="app/src/main/res/layout/variable_image_layout.xml" value="0.15364583333333334" />
       </map>
     </option>
   </component>
