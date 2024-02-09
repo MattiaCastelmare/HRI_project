@@ -4,6 +4,8 @@ print(user_dir)
 sys.path.append(user_dir)
 from utils import*
 
+from run_planning import run_planning, generate_pddl_file
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("WebSocket Server is running.")
@@ -34,7 +36,8 @@ class Server(tornado.websocket.WebSocketHandler):
                 except tornado.websocket.WebSocketClosedError:
                     # Handle the case where the WebSocket is closed for the other client
                     print(f"Client {client_dict['name']} not connected. Not forwarding the message.")
-
+        
+        
     def on_close(self):
         print("WebSocket closed")
         # Remove the closed WebSocket from the clients list
@@ -54,11 +57,79 @@ class Server(tornado.websocket.WebSocketHandler):
         if match:
             return match.group(1)
         return None
+    
+    
+class TabletServer(tornado.websocket.WebSocketHandler):
+    client = {}
+    
+    # Thing useful for the planning
+    domain_file = 'puzzle_domain.pddl'
+    problem_file = 'puzzle_problem.pddl'
+    algorithm= "ehs"
+    heuristic= "hff"
+
+    def check_origin(self, origin):
+        return True
+
+    def open(self):
+        # Extract client name from the URL
+        #client_name = self.get_client_name_from_uri(self.request.uri)
+        print("WebSocket opened for Tablet client")
+        TabletServer.client= {'name': 'Tablet', 'info': self}
+        
+
+    def on_message(self, message: str):
+    # Forward the message to all other connected clients except the sender
+        if message.startswith("New indices:"):
+            # Divide the string in two parts
+            index_part = message.split(": ")[1].strip("[]")
+            # Put the indices in a list
+            index_list = [int(elem.strip()) for elem in index_part.split(",")]
+            
+            # Generate the new pddl files and execute the new pddl
+            generate_pddl_file(index_list)
+            plan= run_planning(self.domain_file, self.problem_file, self.algorithm, self.heuristic)
+            
+            # Compute the 
+            action=str(plan[0]).split('\n')[0]
+            
+            # Extract the two pieces of puzzle to switch
+            matches = re.findall(r"c(\d+)", action)
+
+            if len(matches) >= 2:
+                puzzleNumber1 = matches[0]
+                puzzleNumber2 = matches[1]
+                
+            mess_toSend= 'Pepper move:' + str(puzzleNumber1)+ ',' + str(puzzleNumber2)
+            print(mess_toSend)
+            self.send_message(mess_toSend)
+        
+    def on_close(self):
+        print("WebSocket closed")
+        # Remove the closed WebSocket from the clients list
+        TabletServer.client = {}
+    
+    @classmethod
+    def send_message(self, message: str):
+        print(f"Sending message {message} to Tablet client")
+        client = self.client['info']
+        client.write_message(message)
+    
+    ''' 
+    @staticmethod
+    def get_client_name_from_uri(uri):
+        # Extract client name from the URL
+        match = re.match(r'/websocket/(\w+)', uri)
+        if match:
+            return match.group(1)
+        return None
+    '''
+
 
 def make_app():
     return tornado.web.Application([
         (r'/', MainHandler),
-        (r'/websocket/Tablet', Server),
+        (r'/websocket/Tablet', TabletServer),
         (r'/websocket/Pepper', Server)],
         websocket_ping_interval=10,
         websocket_ping_timeout=30,

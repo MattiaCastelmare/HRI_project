@@ -12,6 +12,10 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,45 +24,46 @@ public class PuzzleGame implements View.OnDragListener{
         private ImageView firstClickedImageView;
         private int firstClickedPosition = -1;
         private List<Integer> indices = new ArrayList<>();
-        private GridLayout gridLayout;
+        private RecyclerView recyclerView;
         private Context context;
+        private PieceAdapter adapter;
         private WebSocketClient webSocketClient;
 
         // Constructor
-        public PuzzleGame(GridLayout gridLayout, Context context,WebSocketClient webSocketClient) {
-                this.gridLayout = gridLayout;
+        public PuzzleGame(RecyclerView recyclerView, Context context, WebSocketClient webSocketClient,PieceAdapter adapter) {
+                this.recyclerView = recyclerView;
                 this.context = context;
                 this.webSocketClient = webSocketClient;
+                this.adapter= adapter;
                 initializeGridView();
         }
         private void initializeGridView() {
-                int childCount = gridLayout.getChildCount();
+                // Attach the adapter  and layout manager to the RecyclerView
+                StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(Constants.cols, StaggeredGridLayoutManager.HORIZONTAL);
+                recyclerView.setLayoutManager(layoutManager);
+                recyclerView.setAdapter(adapter);
+                recyclerView.addItemDecoration(new SpacesItemDecoration(2));
+
+                int childCount = recyclerView.getChildCount();
                 for (int i = 0; i < childCount; i++) {
                         indices.add(i);
                 }
                 Collections.shuffle(indices);
                 for (int i = 0; i < childCount; i++) {
-                        final ImageView child = (ImageView) gridLayout.getChildAt(i);
                         final int currentPosition = i;
-                        int imageIndex = indices.get(i);
-                        int imageResourceId = context.getResources().getIdentifier("patch_" + imageIndex, "drawable", context.getPackageName());
-                        child.setImageResource(imageResourceId);
-                        // Set the tag to store the position of the ImageView
-                        child.setTag(currentPosition);
-                        Log.d(Constants.TAG, "ImageView " + i + ", Tag: " + child.getTag());
-                        child.setOnClickListener(view -> {
+                        Log.d(Constants.TAG, "ImageView " + i + ", Tag: " +recyclerView.getChildAt(currentPosition).getTag());
+                        recyclerView.getChildAt(currentPosition).setOnClickListener(view -> {
                                 if (firstClickedImageView == null) {
-                                        firstClickedImageView = child;
+                                        firstClickedImageView = (ImageView) view;
                                         firstClickedPosition = currentPosition;
                                 } else {
-                                        swapImages(firstClickedImageView, child);
+                                        swapImages(firstClickedImageView, (ImageView) view);
                                         firstClickedImageView = null;
                                         firstClickedPosition = -1;
                                 }
                         });
-
-                        child.setOnDragListener(this);
-                        child.setOnLongClickListener(view -> {
+                        recyclerView.getChildAt(currentPosition).setOnDragListener(this);
+                        recyclerView.getChildAt(currentPosition).setOnLongClickListener(view -> {
                                 ClipData data = ClipData.newPlainText("", "");
                                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                                 view.startDrag(data, shadowBuilder, view, 0);
@@ -102,9 +107,9 @@ public class PuzzleGame implements View.OnDragListener{
         }
         private ImageView findImageViewByIndex(int index) {
                 // Iterate through child views of the GridLayout to find the ImageView with the specified index
-                int childCount = gridLayout.getChildCount();
+                int childCount = recyclerView.getChildCount();
                 for (int i = 0; i < childCount; i++) {
-                        View child = gridLayout.getChildAt(i);
+                        View child = recyclerView.getChildAt(i);
                         if (child instanceof ImageView) {
                                 ImageView imageView = (ImageView) child;
                                 int imageViewIndex = getImageViewIndex(imageView);
