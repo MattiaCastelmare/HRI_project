@@ -9,15 +9,15 @@ import okio.ByteString;
 
 public class WebSocketClient extends WebSocketListener {
     private WebSocket webSocket;
-    private Puzzle puzzle;
+    private PuzzleGame puzzleGame;
 
     public WebSocketClient(String url) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder().url(url).build();
         webSocket = client.newWebSocket(request, this);
     }
-    public void initializePuzzle(Puzzle puzzle) {
-        this.puzzle = puzzle;
+    public void initializePuzzle(PuzzleGame puzzleGame) {
+        this.puzzleGame = puzzleGame;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class WebSocketClient extends WebSocketListener {
             int index1 = Integer.parseInt(indices[0].trim());
             int index2 = Integer.parseInt(indices[1].trim());
             // Send indices to the Puzzle
-            puzzle.PepperSwapsPuzzlePieces(index1, index2);
+            puzzleGame.PepperSwapsPuzzlePieces(index1, index2);
             System.out.println("Pepper is making a move, swapping: " + index1 + ", " + index2);
         }
     }

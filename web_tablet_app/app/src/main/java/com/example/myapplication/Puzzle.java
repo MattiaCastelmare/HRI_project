@@ -1,177 +1,156 @@
+//https://dragosholban.com/2018/03/09/how-to-build-a-jigsaw-puzzle-android-game/
 package com.example.myapplication;
-
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
-import android.view.DragEvent;
-import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-
-import java.io.IOException;
+import android.graphics.BitmapFactory;
+import android.view.ViewGroup;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-public class Puzzle implements View.OnDragListener{
-        private ImageView firstClickedImageView;
-        private int firstClickedPosition = -1;
-        private List<Integer> indices = new ArrayList<>();
-        private GridLayout gridLayout;
-        private Context context;
-        private WebSocketClient webSocketClient;
+public class Puzzle {
+    int screenWidth;
+    int screenHeight;
+    int imageHeight;
+    int imageWidth;
+    int random_id;
+    private Context context;
+    private Activity parentActivity;
+    int difficulty;
+    int count;
+    ArrayList<Piece> pieces;
 
-        // Constructor
-        public Puzzle(GridLayout gridLayout, Context context,WebSocketClient webSocketClient) {
-                this.gridLayout = gridLayout;
-                this.context = context;
-                this.webSocketClient = webSocketClient;
-                initializeGridView();
+    public Puzzle(int difficulty, int[] resolution, Context context, Activity parentActivity) {
+        this.parentActivity = parentActivity;
+        this.context = context;
+        this.screenHeight = resolution[0];
+        this.screenWidth = resolution[1];
+        this.difficulty = difficulty;
+        int[] chosen_images = chooseDifficulty(difficulty);
+        getRandomImage(chosen_images);
+        ResizeImage();
+        setRandomImage(chosen_images);
+        this.pieces = splitImage();
+        addPiecesGrid(pieces);
+    }
+    public void setRandomImage(int[] images) {
+        // Get the ImageView
+        parentActivity.setContentView(R.layout.variable_image_layout);
+        ImageView mImageView = parentActivity.findViewById(R.id.intact_image);
+        // Set the layout parameters of the ImageView based on image dimensions
+        ViewGroup.LayoutParams layoutParams = mImageView.getLayoutParams();
+        layoutParams.width = imageWidth;
+        layoutParams.height = imageHeight;
+        // Set the image
+        mImageView.setImageResource(images[random_id]);
+    }
+    public void getRandomImage(int[] images) {
+        // Get a random between 0 and images.length-1
+        random_id = (int) (Math.random() * images.length);
+        // Decode the image to obtain its dimensions
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(context.getResources(), images[random_id], options);
+        // Get the dimensions of the image
+        imageWidth = options.outWidth;
+        imageHeight = options.outHeight;
+        Log.d(Constants.TAG, "IMAGE Width: " + imageWidth + ", Height: " + imageHeight);
+    }
+    public void ResizeImage() {
+        // Check if both dimensions are larger than the screen
+        if (imageHeight > screenHeight || imageWidth > screenWidth) {
+            count+=1;
+            // Resize both dimensions
+            imageHeight = (int) (imageHeight * Constants.scaleParam);
+            imageWidth = (int) (imageWidth * Constants.scaleParam);
+            Log.d(Constants.TAG, "RESIZED IMAGE Width: " + imageWidth + ", Height: " + imageHeight);
+            // Recursive call to check again
+            ResizeImage();
         }
-        private void initializeGridView() {
-                int childCount = gridLayout.getChildCount();
-                for (int i = 0; i < childCount; i++) {
-                        indices.add(i);
-                }
-                Collections.shuffle(indices);
-                for (int i = 0; i < childCount; i++) {
-                        final ImageView child = (ImageView) gridLayout.getChildAt(i);
-                        final int currentPosition = i;
-                        int imageIndex = indices.get(i);
-                        int imageResourceId = context.getResources().getIdentifier("patch_" + imageIndex, "drawable", context.getPackageName());
-                        child.setImageResource(imageResourceId);
-                        // Set the tag to store the position of the ImageView
-                        child.setTag(currentPosition);
-                        Log.d(Constants.TAG, "ImageView " + i + ", Tag: " + child.getTag());
-                        child.setOnClickListener(view -> {
-                                if (firstClickedImageView == null) {
-                                        firstClickedImageView = child;
-                                        firstClickedPosition = currentPosition;
-                                } else {
-                                        swapImages(firstClickedImageView, child);
-                                        firstClickedImageView = null;
-                                        firstClickedPosition = -1;
-                                }
-                        });
-
-                        child.setOnDragListener(this);
-                        child.setOnLongClickListener(view -> {
-                                ClipData data = ClipData.newPlainText("", "");
-                                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
-                                view.startDrag(data, shadowBuilder, view, 0);
-                                return true;
-                        });
-                }
-                // Send initial random indices to the Server
-                String initial_message = "Initial random indices: " + indices.toString();
-                webSocketClient.sendMessage(initial_message);
-                Log.d(Constants.TAG, "Initial random indices: " + indices.toString());
+    }
+    public int[] chooseDifficulty(int difficulty) {
+        if (difficulty == 1) {
+            return Constants.EASY_IMAGES;
+        } else if (difficulty == 2) {
+            return Constants.MEDIUM_IMAGES;
+        } else if (difficulty == 3) {
+            return Constants.DIFFICULT_IMAGES;
+        } else {
+            throw new IllegalArgumentException("Invalid difficulty level: " + difficulty);
         }
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
-                int action = event.getAction();
-                switch (action) {
-                        case DragEvent.ACTION_DRAG_STARTED:
-                                if (v instanceof ImageView && isDraggedViewCorrect((ImageView) v, event)) {
-                                        highlightView((ImageView) v);
-                                }
-                                break;
-                        case DragEvent.ACTION_DRAG_ENTERED:
-                                highlightView((ImageView) v);
-                                break;
-                        case DragEvent.ACTION_DRAG_EXITED:
-                        case DragEvent.ACTION_DRAG_ENDED:
-                                unhighlightView((ImageView) v);
-                                break;
-                        case DragEvent.ACTION_DROP:
-                                View draggedView = (View) event.getLocalState();
-                                if (draggedView instanceof ImageView && v instanceof ImageView) {
-                                        swapImages((ImageView) draggedView, (ImageView) v);
-                                }
-                                break;
-                }
-                return true;
+    }
+    private ArrayList<Piece> splitImage() {
+        ArrayList<Piece> pieces = new ArrayList<>(Constants.number_of_pieces);
+        ImageView imageView = parentActivity.findViewById(R.id.intact_image);
+        BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        Bitmap bitmap = drawable.getBitmap();
+        // scale the image
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, imageWidth, imageHeight, true);
+        // Compute H W of pieces
+        int pieceWidth  = (imageWidth/Constants.cols)-1;
+        int pieceHeight = (imageHeight/Constants.rows)-1;
+        Log.d(Constants.TAG, "Piece Width: " + pieceWidth);
+        Log.d(Constants.TAG, "Piece Height: " + pieceHeight);
+        // Create each bitmap piece and add it to the resulting array
+        int yCord = 0;
+        for (int row = 0; row < Constants.rows; row++) {
+            int xCord = 0;
+            for (int col = 0; col < Constants.cols; col++) {
+                Piece piece = new Piece(bitmap.createBitmap(scaledBitmap, xCord, yCord, pieceWidth, pieceHeight),xCord,yCord,pieceWidth,pieceHeight);
+                pieces.add(piece);
+                xCord += pieceWidth;
+                Log.d(Constants.TAG, "X: " + xCord);
+            }
+            yCord += pieceHeight;
+            Log.d(Constants.TAG, "Y: " + yCord);
         }
-        private int getImageViewIndex(ImageView imageView) {
-                // Retrieve the index from the tag
-                Object tag = imageView.getTag();
-                return tag instanceof Integer ? (Integer) tag : -1;
+        return pieces;
+    }
+    private void addPiecesGrid(ArrayList<Piece> pieces) {
+        parentActivity.setContentView(R.layout.grid);
+        final GridLayout layout = parentActivity.findViewById(R.id.grid);
+        for (Piece piece : pieces) {
+            Bitmap bitmap = piece.getBitmap();
+            int x = piece.getX();
+            int y = piece.getY();
+            ImageView iv = new ImageView(context);
+            iv.setImageBitmap(bitmap);
+            // Set the x and y coordinates using GridLayout.LayoutParams
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.rowSpec = GridLayout.spec(x);
+            params.columnSpec = GridLayout.spec(y);
+            iv.setLayoutParams(params);
+            layout.addView(iv);
         }
-        private ImageView findImageViewByIndex(int index) {
-                // Iterate through child views of the GridLayout to find the ImageView with the specified index
-                int childCount = gridLayout.getChildCount();
-                for (int i = 0; i < childCount; i++) {
-                        View child = gridLayout.getChildAt(i);
-                        if (child instanceof ImageView) {
-                                ImageView imageView = (ImageView) child;
-                                int imageViewIndex = getImageViewIndex(imageView);
-                                if (imageViewIndex == index) {
-                                        return imageView;
-                                }
-                        }
-                }
-                return null; // Return null if ImageView with the specified index is not found
-        }
-        // Next classes are relative al on Drag event
-        private boolean isDraggedViewCorrect(ImageView targetView, DragEvent event) {
-                View draggedView = (View) event.getLocalState();
-                return draggedView != null && draggedView.equals(targetView);
-        }
-        private void highlightView(ImageView imageView) {
-                Drawable[] layers = new Drawable[2];
-                layers[0] = imageView.getDrawable();
-                layers[1] = getGreenBorderDrawable();
-                LayerDrawable layerDrawable = new LayerDrawable(layers);
-                imageView.setBackgroundDrawable(layerDrawable);
-        }
-
-        private void unhighlightView(ImageView imageView) {
-                imageView.setBackgroundDrawable(null);
-        }
-
-        private Drawable getGreenBorderDrawable() {
-                GradientDrawable borderDrawable = new GradientDrawable();
-                borderDrawable.setStroke(5, 0xFF00FF00);
-                return borderDrawable;
-        }
-
-        private void swapImages(final ImageView firstImageView, final ImageView secondImageView) {
-                // Get the indices from the ImageViews
-                int firstIndex = getImageViewIndex(firstImageView);
-                int secondIndex = getImageViewIndex(secondImageView);
-                // Swap the Image Views
-                Drawable firstImage = firstImageView.getDrawable();
-                Drawable secondImage = secondImageView.getDrawable();
-                firstImageView.setImageDrawable(secondImage);
-                secondImageView.setImageDrawable(firstImage);
-                // Update the indices in the list
-                Collections.swap(indices, firstIndex, secondIndex);
-                Log.d(Constants.TAG, "New indices after swap: " + indices.toString());
-                // Send indices to Server
-                String swap_message = "SWAP: position " + firstIndex + " , with " + secondIndex;
-                String indices_message = "New indices: " + indices.toString();
-                webSocketClient.sendMessage(swap_message);
-                webSocketClient.sendMessage(indices_message);
-        }
-        public void PepperSwapsPuzzlePieces(int index1, int index2) {
-                // Ensure UI updates are done on the main thread
-                ((Activity) context).runOnUiThread(() -> {
-                        // Locate the corresponding ImageViews in the GridLayout
-                        ImageView firstImageView = findImageViewByIndex(index1);
-                        ImageView secondImageView = findImageViewByIndex(index2);
-                        // Swap the Image Views
-                        Drawable firstImage = firstImageView.getDrawable();
-                        Drawable secondImage = secondImageView.getDrawable();
-                        firstImageView.setImageDrawable(secondImage);
-                        secondImageView.setImageDrawable(firstImage);
-                        // Update the indices in the list
-                        Collections.swap(indices, index1, index2);
-                        System.out.println("Pepper is making a move, swapping: " + index1 + ", " + index2);
-                        // SEND THEM BACK TO PEPPER MAYBE?
-                });
-        }
+    }
 }
+
+// Class to store the image (piece of puzzle) and it s predetermined position
+class Piece {
+    public Bitmap bitmap;
+    private int x;
+    private int y;
+
+    public Piece(Bitmap bitmap, int x, int y, int w, int h) {
+        this.bitmap = bitmap;
+        this.x = x + w;
+        this.y = y + h;
+    }
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+    public int getX() {
+        return x;
+    }
+    public int getY() {
+        return y;
+    }
+}
+
+
+
+
+
