@@ -10,6 +10,17 @@ from pddl.requirements import Requirements
 
 from pddl.logic.base import And
 
+def generation_constants(num_const, pathStr):
+  dictionary=dict()
+  cos_list = []
+  num=1
+  for x in range(1, num_const+1 ):
+      st= pathStr+str(num)
+      dictionary[pathStr+'%d' %x] = constants(st)
+      cos_list.extend(dictionary[pathStr+'%d' % x])
+      num+=1
+
+  return cos_list
 
 def generate_pddl_file(initial_positions):
     #Define the requirements
@@ -17,14 +28,19 @@ def generate_pddl_file(initial_positions):
     
     # set up variables and constants
     x, px, y, py, p= variables("x px y py p")
-    p1, p2, p3, p4, p5, p6, p7, p8, p9= constants("p1 p2 p3 p4 p5 p6 p7 p8 p9")
-    c1, c2, c3, c4, c5, c6, c7, c8, c9= constants("c1 c2 c3 c4 c5 c6 c7 c8 c9")
+    #p1, p2, p3, p4, p5, p6, p7, p8, p9= constants("p1 p2 p3 p4 p5 p6 p7 p8 p9")
+    #c1, c2, c3, c4, c5, c6, c7, c8, c9= constants("c1 c2 c3 c4 c5 c6 c7 c8 c9")
     
-    goal=[c1, c2, c3, c4, c5, c6, c7, c8, c9]
-    pos_puzzle=[p1, p2, p3, p4, p5, p6, p7, p8, p9]
+    #gigi=[c1, c2, c3, c4, c5, c6, c7, c8, c9]
+    #proietti=[p1, p2, p3, p4, p5, p6, p7, p8, p9]
+    number_constants= len(initial_positions)
+    piece_list=generation_constants(number_constants,'c')
+    pos_list=generation_constants(number_constants,'p')
+    print(piece_list)
+    print(pos_list)
     
     #create the list of the object for the problem.pddl file
-    obj= goal + pos_puzzle
+    obj= piece_list + pos_list
 
     # Define predicates
     position_pred = Predicate("POSITION", p)
@@ -47,13 +63,21 @@ def generate_pddl_file(initial_positions):
     
     
     # Define initial state
-    initial_state = [position_pred(p1), position_pred(p2), position_pred(p3), position_pred(p4), position_pred(p5), position_pred(p6), position_pred(p7), position_pred(p8), position_pred(p9), piece_pred(c1), piece_pred(c2), piece_pred(c3), piece_pred(c4), piece_pred(c1), piece_pred(c5), piece_pred(c6), piece_pred(c7), piece_pred(c8), piece_pred(c9)]
+    initial_state = [position_pred(elem) for elem in pos_list]
+    initial_state.extend([piece_pred(elem) for elem in piece_list])
+    
     index=0
     for elem in initial_positions:
-        puzz_piece=goal[elem-1]
-        initial_state.append(at_pred(pos_puzzle[index], puzz_piece))
+        puzz_piece=piece_list[elem-1]
+        initial_state.append(at_pred(pos_list[index], puzz_piece))
         index+=1
         
+    goal_state = []
+    for i in range(0,number_constants):
+        puzz_piece=piece_list[elem-1]
+        goal_state.append(at_pred(pos_list[i], piece_list[i]))
+    
+    
     # Define the problem
     problem = Problem(
             "puzzle_problem", 
@@ -61,15 +85,7 @@ def generate_pddl_file(initial_positions):
             objects= obj,
             requirements= None,
             init= initial_state,
-            goal= And(at_pred(p1,c1),
-                      at_pred(p2,c2),
-                      at_pred(p3,c3),
-                      at_pred(p4,c4),
-                      at_pred(p5,c5),
-                      at_pred(p6,c6),
-                      at_pred(p7,c7),
-                      at_pred(p8,c8),
-                      at_pred(p9,c9)
+            goal= And(*goal_state
                       )
             )
     
@@ -104,18 +120,35 @@ def run_planning(domain_pddl, problem_pddl, search_alg_name,
   parser = Parser(domain_pddl, problem_pddl)
   domain = parser.parse_domain()
   problem = parser.parse_problem(domain)
-
+  print('ecco')
   # Ground the PDDL
   task = grounding.ground(problem)
-
+  print('ah boh')
   # Get the search alg
   search_alg = planner.SEARCHES[search_alg_name]
-
+  print('bella ciao')
   if heuristic_name is None:
-    return search_alg(task)
-
+    print('so entrato')
+    plan=search_alg(task)
+    print('sto uscendo')
+    return plan
+  
   # Get the heuristic
   heuristic = planner.HEURISTICS[heuristic_name](task)
-
+  print('ma perchè ci metto così tanto?')
+  plan=search_alg(task, heuristic)
+  print('almeno è andato')
   # Run planning
-  return search_alg(task, heuristic)
+  return plan
+
+'''
+def alternativa(domain_pddl, problem_pddl):
+  # Crea un'istanza del pianificatore
+  planner = Planner("path/to/domain.pddl", "path/to/problem.pddl")
+
+  # Risolvi il problema PDDL
+  solution = planner.solve()
+
+  # Stampa la prima azione
+  print(solution[0])
+'''
