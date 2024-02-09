@@ -26,18 +26,13 @@ def generate_pddl_file(initial_positions):
     #Define the requirements
     requirements = [Requirements.STRIPS]
     
-    # set up variables and constants
+    # set up variables 
     x, px, y, py, p= variables("x px y py p")
-    #p1, p2, p3, p4, p5, p6, p7, p8, p9= constants("p1 p2 p3 p4 p5 p6 p7 p8 p9")
-    #c1, c2, c3, c4, c5, c6, c7, c8, c9= constants("c1 c2 c3 c4 c5 c6 c7 c8 c9")
     
-    #gigi=[c1, c2, c3, c4, c5, c6, c7, c8, c9]
-    #proietti=[p1, p2, p3, p4, p5, p6, p7, p8, p9]
+    # generate the constant depending on the initial_position
     number_constants= len(initial_positions)
     piece_list=generation_constants(number_constants,'c')
     pos_list=generation_constants(number_constants,'p')
-    print(piece_list)
-    print(pos_list)
     
     #create the list of the object for the problem.pddl file
     obj= piece_list + pos_list
