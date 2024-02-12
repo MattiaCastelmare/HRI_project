@@ -6,11 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 import android.graphics.BitmapFactory;
 import android.view.ViewGroup;
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import java.util.ArrayList;
@@ -18,21 +18,17 @@ import java.util.Collections;
 import java.util.List;
 
 public class Puzzle {
-    int screenWidth;
-    int screenHeight;
-    int imageHeight;
-    int imageWidth;
-    int pieceWidth;
-    int pieceHeight;
-    int random_id;
+    int screenWidth, screenHeight;
+    int imageHeight, imageWidth;
+    int pieceWidth, pieceHeight;
+    int random_id, count, difficulty;
     private final Context context;
     private final Activity parentActivity;
-    int difficulty;
-    int count;
     ArrayList<Piece> pieces;
     PieceAdapter adapter;
     StaggeredGridLayoutManager layoutManager;
     List<Integer> initial_indices = new ArrayList<>();
+
     public Puzzle(int difficulty, int[] resolution, Context context, Activity parentActivity) {
         this.parentActivity = parentActivity;
         this.context = context;
@@ -105,21 +101,23 @@ public class Puzzle {
         Log.d(Constants.TAG, "Piece Width: " + pieceWidth);
         Log.d(Constants.TAG, "Piece Height: " + pieceHeight);
         // Create each bitmap piece and add it to the resulting array
-        int idx=0;
-        int yCord = 0;
-        for (int row = 0; row < Constants.rows; row++) {
-            int xCord = 0;
-            for (int col = 0; col < Constants.cols; col++) {
-                Log.d(Constants.TAG, "X: " + xCord + " Y: " + yCord);
-                Piece piece = new Piece(Bitmap.createBitmap(scaledBitmap, xCord, yCord, pieceWidth, pieceHeight), xCord, yCord,idx);
+        int xCord = 0;
+        for (int col = 0; col < Constants.cols; col++)  {
+            int yCord = 0;
+            for (int row = 0; row < Constants.rows; row++) {
+                //Log.d(Constants.TAG, "X: " + xCord + " Y: " + yCord);
+                // Calculate the index based on column-wise counting
+                int pieceIndex = col * Constants.rows + row;
+                Log.d(Constants.TAG, "index: " + pieceIndex + " row: " + row + " col: " + col);
+                Piece piece = new Piece(Bitmap.createBitmap(scaledBitmap, xCord, yCord, pieceWidth, pieceHeight), pieceIndex);
                 pieces.add(piece);
-                xCord += pieceWidth;
-                idx++;
+                yCord += pieceHeight;
             }
-            yCord += pieceHeight;
+            xCord += pieceWidth;
         }
         // Create random indices
         Collections.shuffle(pieces);
+        // Save initial indices
         for (int i = 0; i < pieces.size(); i++) {
             int index = pieces.get(i).getIdx();
             initial_indices.add(index);
@@ -135,7 +133,7 @@ public class Puzzle {
         // Create an adapter for the RecyclerView
         this.adapter = new PieceAdapter(context, pieces, pieceWidth, pieceHeight);
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new SpacesItemDecoration(2));
+        //recyclerView.addItemDecoration(new SpacesItemDecoration(1));
     }
 }
  class SpacesItemDecoration extends RecyclerView.ItemDecoration {
@@ -144,74 +142,121 @@ public class Puzzle {
             this.spacing = spacing;
         }
         @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+        public void getItemOffsets(Rect outRect,  View view, RecyclerView parent, RecyclerView.State state) {
             outRect.left = spacing;
             outRect.right = spacing;
             outRect.top = spacing;
             outRect.bottom = spacing;
         }
     }
-    class PieceAdapter extends RecyclerView.Adapter<PieceAdapter.PieceViewHolder> {
-        private Context context;
-        private List<Piece> pieces;
-        private int pieceWidth;
-        private int pieceHeight;
 
-        public PieceAdapter(Context context, List<Piece> pieces, int pieceWidth, int pieceHeight) {
-            this.context = context;
-            this.pieces = pieces;
-            this.pieceWidth = pieceWidth;
-            this.pieceHeight = pieceHeight;
-        }
-        @NonNull
-        @Override
-        public PieceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ImageView imageView = new ImageView(context);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(pieceWidth, pieceHeight));
-            return new PieceViewHolder(imageView);
-        }
-        @Override
-        public void onBindViewHolder(@NonNull PieceViewHolder holder, int position) {
-            holder.imageView.setImageBitmap(pieces.get(position).getBitmap());
-        }
-        @Override
-        public int getItemCount() {
-            return pieces.size();
-        }
-        public class PieceViewHolder extends RecyclerView.ViewHolder {
-            ImageView imageView;
-            public PieceViewHolder(@NonNull ImageView itemView) {
-                super(itemView);
-                imageView = itemView;
+class PieceAdapter extends RecyclerView.Adapter<PieceAdapter.PieceViewHolder> {
+    private final Context context;
+    private final List<Piece> pieces;
+    private final int pieceWidth, pieceHeight;
+    private OnItemClickListener listener;
+    private View.OnDragListener dragListener;
+    private int firstClickedPosition = -1;
+    private final SparseArray<ImageView> imageViewMap = new SparseArray<>();
+
+    public PieceAdapter(Context context, List<Piece> pieces, int pieceWidth, int pieceHeight) {
+        this.context = context;
+        this.pieces = pieces;
+        this.pieceWidth = pieceWidth;
+        this.pieceHeight = pieceHeight;
+
+    }
+    public int getFirstClickedPosition() {
+        return firstClickedPosition;
+    }
+    public View.OnDragListener getDragListener() { return dragListener; }
+    public interface OnItemClickListener { void onItemClick(int position); }
+    public void setFirstClickedPosition(int position) {
+        firstClickedPosition = position;
+    }
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+    public void setOnDragListener(View.OnDragListener dragListener) { this.dragListener = dragListener; }
+    public List<Piece> getPieces() { return pieces; }
+
+    @Override
+    public int getItemViewType(int position) { return position; }
+
+    @Override
+    public PieceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        ImageView imageView = new ImageView(context);
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(pieceWidth, pieceHeight));
+        int paddingInPixels = 4;
+        imageView.setPadding(paddingInPixels, paddingInPixels, paddingInPixels, paddingInPixels);
+        imageViewMap.put(viewType, imageView); // Update the mapping
+        PieceViewHolder viewHolder = new PieceViewHolder(imageView);
+        Log.d(Constants.TAG, "viewType: " + viewType);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(PieceViewHolder holder, int position) {
+        // Set the position as a tag for the itemView
+        holder.itemView.setTag(position);
+        Log.d(Constants.TAG, "TAG SET: " + position);
+        Piece piece = pieces.get(position);
+        holder.imageView.setLongClickable(true);
+        holder.imageView.setOnDragListener(dragListener);
+        // Set click listener for each item
+        holder.itemView.setOnClickListener(view -> {
+            if (listener != null) {
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(adapterPosition);
+                }
             }
+        });
+        // Set long click listener on itemView to initiate the drag operation
+        holder.itemView.setOnLongClickListener(view -> {
+            // Retrieve the position from the itemView's tag
+            Integer tag = (Integer) holder.itemView.getTag();
+            //Log.d(Constants.TAG, "DRAGGED IMAGE HAS TAG: " + tag);
+            if (tag != null && tag < pieces.size()) {
+                View.DragShadowBuilder myShadow = new View.DragShadowBuilder(holder.itemView);
+                view.startDrag(null, myShadow, tag, 0);
+                return true;
+            }
+            return false;
+        });
+        holder.imageView.setImageBitmap(piece.getBitmap());
+        // Update the mapping
+        imageViewMap.put(position, holder.imageView);
+    }
+
+    @Override
+    public int getItemCount() { return pieces.size(); }
+    public static class PieceViewHolder extends RecyclerView.ViewHolder{
+        ImageView imageView;
+        public PieceViewHolder( ImageView itemView) {
+            super(itemView);
+            imageView = itemView;
         }
+        public ImageView getImageView() { return imageView; }
+    }
 }
 // Class to store the image (piece of puzzle) and it s predetermined position
 class Piece {
     public Bitmap bitmap;
-    private final int x;
-    private final int y;
     private final int initial_index;
 
-    public Piece(Bitmap bitmap, int x, int y, int idx) {
+    public Piece(Bitmap bitmap, int idx) {
         this.bitmap = bitmap;
-        this.x = x;
-        this.y = y;
         this.initial_index = idx;
     }
     public Bitmap getBitmap() {
         return bitmap;
     }
-    public int getX() {
-        return x;
-    }
-    public int getY() {
-        return y;
-    }
     public int getIdx() {
         return initial_index;
     }
 }
+
 
 
 

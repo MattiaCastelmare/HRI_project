@@ -3,25 +3,21 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.widget.GridLayout;
 import android.widget.Button;
 import android.view.View;
-import android.widget.ImageView;
-import android.view.Gravity;
 import android.content.Context;
-import android.view.ViewTreeObserver;
-
 import java.util.List;
-
 
 public class MainActivity extends AppCompatActivity {
     private WebSocketClient wsc;
     private Puzzle puzzleLayout;
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

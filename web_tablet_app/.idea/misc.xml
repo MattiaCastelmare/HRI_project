@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/highlight.xml" value="0.236" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_pepper.xml" value="0.33" />
         <entry key="app/src/main/res/layout/button.xml" value="0.6" />

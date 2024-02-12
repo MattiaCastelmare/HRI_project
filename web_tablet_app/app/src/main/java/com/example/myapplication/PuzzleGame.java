@@ -1,35 +1,26 @@
 package com.example.myapplication;
 
+
 import android.app.Activity;
-import android.content.ClipData;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 import android.view.DragEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.GridLayout;
 import android.widget.ImageView;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public class PuzzleGame implements View.OnDragListener{
-        private ImageView firstClickedImageView;
-        private int firstClickedPosition = -1;
-        private List<Integer> indices;
-        private RecyclerView recyclerView;
-        private Context context;
-        private PieceAdapter adapter;
-        private WebSocketClient webSocketClient;
+public class PuzzleGame {
+        private final List<Integer> indices;
+        private final RecyclerView recyclerView;
+        private final Context context;
+        private final PieceAdapter adapter;
+        private final WebSocketClient webSocketClient;
+        private int lastClickedPosition = 0;
 
         // Constructor
         public PuzzleGame(List<Integer> initial_indices, RecyclerView recyclerView, Context context, WebSocketClient webSocketClient,PieceAdapter adapter) {
@@ -41,131 +32,133 @@ public class PuzzleGame implements View.OnDragListener{
                 initializeGridView();
         }
         private void initializeGridView() {
-                // Attach the adapter  and layout manager to the RecyclerView
+                // Attach the adapter and layout manager to the RecyclerView
                 StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(Constants.cols, StaggeredGridLayoutManager.HORIZONTAL);
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(adapter);
                 recyclerView.addItemDecoration(new SpacesItemDecoration(2));
                 // Set up click and drag listeners for each item in the RecyclerView
-                recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                        @Override
-                        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                                return false;
-                        }
-                        @Override
-                        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                                // Handle touch events here
-                                if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                                        handleItemClick(e);
-                                }
-                        }
-                        @Override
-                        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-                                // Not used for click and drag handling
-                        }
-                });
+                recyclerView.setOnDragListener(adapter.getDragListener());
+                adapter.setOnItemClickListener(this::handleItemClick);
+                adapter.setOnDragListener(this::handleDrag);
                 // Send initial random indices to the Server
                 String initial_message = "Initial random indices: " + indices.toString();
                 webSocketClient.sendMessage(initial_message);
-                Log.d(Constants.TAG, "Initial random indices: " + indices.toString());
+                Log.d(Constants.TAG, "Initial random indices: " + indices);
         }
-        private void handleItemClick(MotionEvent e) {
-                View childView = recyclerView.findChildViewUnder(e.getX(), e.getY());
-                if (childView != null) {
-                        int currentPosition = recyclerView.getChildAdapterPosition(childView);
-                        Log.d(Constants.TAG, "ImageView " + currentPosition + ", Tag: " + childView.getTag());
-                        if (firstClickedImageView == null) {
-                                // First click
-                                firstClickedImageView = (ImageView) childView;
-                                firstClickedPosition = currentPosition;
-                        } else {
-                                // Second click
-                                swapImages(firstClickedImageView, (ImageView) childView);
-                                firstClickedImageView = null;
-                                firstClickedPosition = -1;
-                        }
+        private void handleItemClick(int position) {
+                // Check if it's the first click
+                if (adapter.getFirstClickedPosition() == -1) {
+                        //Get the original index from the Piece object associated with the clicked position
+                        int originalIndex = indices.get(position);
+                        adapter.setFirstClickedPosition(position);
+                        highlightView(Objects.requireNonNull(findImageViewByIndex(position)));
+                        unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
+                        lastClickedPosition = position;
+                        Log.d(Constants.TAG, "First click at position: " + position + "with tag" + originalIndex);
+                } else {
+                        // It's the second click
+                        int firstClickedPosition = adapter.getFirstClickedPosition();
+                        Log.d(Constants.TAG, "Second click at positions: " + firstClickedPosition + " and " + position);
+                        highlightView(Objects.requireNonNull(findImageViewByIndex(position)));
+                        unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
+                        swapImages(firstClickedPosition, position);
+                        // Reset for the next set of clicks
+                        adapter.setFirstClickedPosition(-1);
+                        lastClickedPosition = position;
                 }
         }
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
+
+        private boolean handleDrag(View v, DragEvent event) {
                 int action = event.getAction();
+                int draggedIndex= (int) event.getLocalState();
+                ImageView draggedImageView = findImageViewByIndex(draggedIndex);
                 switch (action) {
                         case DragEvent.ACTION_DRAG_STARTED:
-                                if (v instanceof ImageView && isDraggedViewCorrect((ImageView) v, event)) {
-                                        highlightView((ImageView) v);
+                                if (draggedImageView != null){
+                                        unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
+                                        //Log.d(Constants.TAG, "Drag started. Found Piece position: " + draggedIndex);
+                                        highlightView(draggedImageView);
                                 }
                                 break;
                         case DragEvent.ACTION_DRAG_ENTERED:
-                                highlightView((ImageView) v);
+                                if (v instanceof ImageView && isDraggedViewCorrect((ImageView) v, event)) {
+                                        assert draggedImageView != null;
+                                        draggedImageView.setVisibility(View.INVISIBLE);
+                                        highlightView((ImageView) v);
+                                }
                                 break;
                         case DragEvent.ACTION_DRAG_EXITED:
+                                if (v instanceof ImageView && draggedImageView != null ) {
+                                        unhighlightView((ImageView) v);
+                                }
+                                break;
                         case DragEvent.ACTION_DRAG_ENDED:
-                                unhighlightView((ImageView) v);
+                                assert draggedImageView != null;
+                                draggedImageView.setVisibility(View.VISIBLE);
                                 break;
                         case DragEvent.ACTION_DROP:
-                                View draggedView = (View) event.getLocalState();
-                                if (draggedView instanceof ImageView && v instanceof ImageView) {
-                                        swapImages((ImageView) draggedView, (ImageView) v);
+                                if (v instanceof ImageView && draggedImageView != null){
+                                int newPosition = (int) v.getTag();
+                                Log.d(Constants.TAG, "Dragged piece position " + draggedIndex);
+                                Log.d(Constants.TAG, "Image dropped here: " + newPosition);
+                                // Perform swapImages logic using the positions
+                                swapImages( draggedIndex, newPosition);
+                                draggedImageView.setVisibility(View.VISIBLE);
                                 }
                                 break;
                 }
                 return true;
         }
-        private int getImageViewIndex(ImageView imageView) {
-                // Retrieve the index from the tag
-                Object tag = imageView.getTag();
-                return tag instanceof Integer ? (Integer) tag : -1;
-        }
+
         private ImageView findImageViewByIndex(int index) {
-                // Iterate through child views of the GridLayout to find the ImageView with the specified index
-                int childCount = recyclerView.getChildCount();
-                for (int i = 0; i < childCount; i++) {
-                        View child = recyclerView.getChildAt(i);
-                        if (child instanceof ImageView) {
-                                ImageView imageView = (ImageView) child;
-                                int imageViewIndex = getImageViewIndex(imageView);
-                                if (imageViewIndex == index) {
-                                        return imageView;
+                // Assuming you have set tags for ImageViews in your RecyclerView
+                for (int i = 0; i < recyclerView.getChildCount(); i++) {
+                        View itemView = recyclerView.getChildAt(i);
+                        // Assuming that ImageView is the only type of view you want to retrieve the tag from
+                        if (itemView instanceof ImageView) {
+                                // Retrieve the tag for each ImageView based on index
+                                Object tag = itemView.getTag();
+                                // Use the tag as needed
+                                if (tag != null && tag.equals(index)) {
+                                        return (ImageView) itemView;
                                 }
                         }
                 }
-                return null; // Return null if ImageView with the specified index is not found
+                return null;
         }
         // Next classes are relative al on Drag event
-        private boolean isDraggedViewCorrect(ImageView targetView, DragEvent event) {
-                View draggedView = (View) event.getLocalState();
-                return draggedView != null && draggedView.equals(targetView);
-        }
         private void highlightView(ImageView imageView) {
-                Drawable[] layers = new Drawable[2];
-                layers[0] = imageView.getDrawable();
-                layers[1] = getGreenBorderDrawable();
-                LayerDrawable layerDrawable = new LayerDrawable(layers);
-                imageView.setBackgroundDrawable(layerDrawable);
+                Drawable highlight = context.getResources().getDrawable( R.drawable.highlight);
+                imageView.setBackgroundDrawable(highlight);
         }
         private void unhighlightView(ImageView imageView) {
                 imageView.setBackgroundDrawable(null);
         }
-        private Drawable getGreenBorderDrawable() {
-                GradientDrawable borderDrawable = new GradientDrawable();
-                borderDrawable.setStroke(5, 0xFF00FF00);
-                return borderDrawable;
+        private boolean isDraggedViewCorrect( ImageView v, DragEvent event) {
+                int pointingIndex = (int) v.getTag();
+                ImageView child = (ImageView) recyclerView.findChildViewUnder(event.getX(), event.getY());
+                if(child != null) {
+                        int pointingIndex2 = (int) child.getTag();
+                        return pointingIndex2 == pointingIndex;
+                }
+                return false;
         }
-        private void swapImages(final ImageView firstImageView, final ImageView secondImageView) {
-                // Get the indices from the ImageViews
-                int firstIndex = getImageViewIndex(firstImageView);
-                int secondIndex = getImageViewIndex(secondImageView);
+        private void swapImages(int firstIndex ,  int secondIndex) {
+                ImageView firstImageView = findImageViewByIndex(firstIndex);
+                ImageView secondImageView = findImageViewByIndex(secondIndex);
                 // Swap the Image Views
+                assert firstImageView != null && secondImageView != null;
                 Drawable firstImage = firstImageView.getDrawable();
                 Drawable secondImage = secondImageView.getDrawable();
                 firstImageView.setImageDrawable(secondImage);
                 secondImageView.setImageDrawable(firstImage);
                 // Update the indices in the list
                 Collections.swap(indices, firstIndex, secondIndex);
-                Log.d(Constants.TAG, "New indices after swap: " + indices.toString());
+                Log.d(Constants.TAG, "New indices after swap: " + indices);
                 // Send indices to Server
                 String swap_message = "SWAP: position " + firstIndex + " , with " + secondIndex;
-                String indices_message = "New indices: " + indices.toString();
+                String indices_message = "New indices: " + indices;
                 webSocketClient.sendMessage(swap_message);
                 webSocketClient.sendMessage(indices_message);
         }
@@ -176,6 +169,7 @@ public class PuzzleGame implements View.OnDragListener{
                         ImageView firstImageView = findImageViewByIndex(index1);
                         ImageView secondImageView = findImageViewByIndex(index2);
                         // Swap the Image Views
+                        assert firstImageView != null && secondImageView != null;
                         Drawable firstImage = firstImageView.getDrawable();
                         Drawable secondImage = secondImageView.getDrawable();
                         firstImageView.setImageDrawable(secondImage);
