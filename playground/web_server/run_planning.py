@@ -33,9 +33,6 @@ def generate_pddl_file(initial_positions):
     number_constants= len(initial_positions)
     piece_list=generation_constants(number_constants,'c')
     pos_list=generation_constants(number_constants,'p')
-
-    print("Pieces", piece_list)
-    print("Positions", pos_list)
     
     #create the list of the object for the problem.pddl file
     obj= piece_list + pos_list

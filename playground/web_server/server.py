@@ -89,20 +89,30 @@ class TabletServer(tornado.websocket.WebSocketHandler):
             # Generate the new pddl files and execute the new pddl
             generate_pddl_file(index_list)
             plan= run_planning(self.domain_file, self.problem_file, self.algorithm, self.heuristic)
-            #print("The plan is: ", plan)
-            # Compute the 
-            action=str(plan[0]).split('\n')[0]
-            #print("The action chosen is", action)
-            # Extract the two pieces of puzzle to switch
-            matches = re.findall(r"p(\d+)", action)
+            print("The plan is: ", plan)
+            
+            # Check if plan is empty
+            if len(plan) == 0:
+                error_message = "No plan available. Unable to perform action."
+                self.send_error(error_message)
+                return  # Exit the function if there is no plan
+            else:
+                # Compute the action 
+                action=str(plan[0]).split('\n')[0]
+                #print("The action chosen is", action)
+                
+                # Extract the two position to switch
+                matches = re.findall(r"p(\d+)", action)
 
-            if len(matches) >= 2:
-                puzzleNumber1 = matches[0]
-                puzzleNumber2 = matches[1]
-
-            mess_toSend= 'PepperMove:' + str(puzzleNumber1)+ ',' + str(puzzleNumber2)
-            print(mess_toSend)
-            self.send_message(mess_toSend)
+                if len(matches) >= 2:
+                    puzzlePos1 = matches[0]
+                    puzzlePos2 = matches[1]
+                
+                #Define the message to send to the web app
+                mess_toSend= 'PepperMove:' + str(puzzlePos1)+ ',' + str(puzzlePos2)
+                print(mess_toSend)
+                self.send_message(mess_toSend)
+                return
         
     def on_close(self):
         print("WebSocket closed")
@@ -115,15 +125,6 @@ class TabletServer(tornado.websocket.WebSocketHandler):
         client = self.client['info']
         client.write_message(message)
     
-    ''' 
-    @staticmethod
-    def get_client_name_from_uri(uri):
-        # Extract client name from the URL
-        match = re.match(r'/websocket/(\w+)', uri)
-        if match:
-            return match.group(1)
-        return None
-    '''
 
 
 def make_app():

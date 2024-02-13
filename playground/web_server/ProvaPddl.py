@@ -5,7 +5,7 @@ from run_planning import run_planning, generate_pddl_file
 import re
 import time
 
-initial_state=[2, 4, 8, 5, 1, 3, 9, 6, 7, 10, 12, 11]
+initial_state=[7, 0, 1, 3, 4, 8, 5, 6, 2]
 
 generate_pddl_file(initial_state)
 
