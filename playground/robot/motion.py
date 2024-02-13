@@ -212,6 +212,13 @@ def talking3(robot):
 
     return
 
+def goodbye(robot):
+    raiseArm(robot, "R")
+    waveArm(robot, "R")
+
+    return
+
+
 
 
 if __name__ == '__main__':
@@ -226,12 +233,12 @@ if __name__ == '__main__':
     app = qi.Application(["App", "--qi-url=" + url])
     app.start()
     session = app.session
-    #greeting(session)
-    # raiseArm(session, "R")
-    # waveArm(session, "R")
+    # greeting(session)
+    # goodbye(session)
     # talking(session)
     # talking2(session)
-    talking3(session)
+    # talking3(session)
+    # no_with_head(session)
 
 
 
