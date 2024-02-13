@@ -89,18 +89,18 @@ class TabletServer(tornado.websocket.WebSocketHandler):
             # Generate the new pddl files and execute the new pddl
             generate_pddl_file(index_list)
             plan= run_planning(self.domain_file, self.problem_file, self.algorithm, self.heuristic)
-            
+            #print("The plan is: ", plan)
             # Compute the 
             action=str(plan[0]).split('\n')[0]
-            
+            #print("The action chosen is", action)
             # Extract the two pieces of puzzle to switch
-            matches = re.findall(r"c(\d+)", action)
+            matches = re.findall(r"p(\d+)", action)
 
             if len(matches) >= 2:
                 puzzleNumber1 = matches[0]
                 puzzleNumber2 = matches[1]
-                
-            mess_toSend= 'Pepper move:' + str(puzzleNumber1)+ ',' + str(puzzleNumber2)
+
+            mess_toSend= 'PepperMove:' + str(puzzleNumber1)+ ',' + str(puzzleNumber2)
             print(mess_toSend)
             self.send_message(mess_toSend)
         

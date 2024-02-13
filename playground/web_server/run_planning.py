@@ -13,8 +13,8 @@ from pddl.logic.base import And
 def generation_constants(num_const, pathStr):
   dictionary=dict()
   cos_list = []
-  num=1
-  for x in range(1, num_const+1 ):
+  num=0
+  for x in range(0, num_const):
       st= pathStr+str(num)
       dictionary[pathStr+'%d' %x] = constants(st)
       cos_list.extend(dictionary[pathStr+'%d' % x])
@@ -33,6 +33,9 @@ def generate_pddl_file(initial_positions):
     number_constants= len(initial_positions)
     piece_list=generation_constants(number_constants,'c')
     pos_list=generation_constants(number_constants,'p')
+
+    print("Pieces", piece_list)
+    print("Positions", pos_list)
     
     #create the list of the object for the problem.pddl file
     obj= piece_list + pos_list
@@ -63,13 +66,13 @@ def generate_pddl_file(initial_positions):
     
     index=0
     for elem in initial_positions:
-        puzz_piece=piece_list[elem-1]
+        puzz_piece=piece_list[elem]
         initial_state.append(at_pred(pos_list[index], puzz_piece))
         index+=1
         
     goal_state = []
     for i in range(0,number_constants):
-        puzz_piece=piece_list[elem-1]
+        puzz_piece=piece_list[elem]
         goal_state.append(at_pred(pos_list[i], piece_list[i]))
     
     
@@ -115,35 +118,23 @@ def run_planning(domain_pddl, problem_pddl, search_alg_name,
   parser = Parser(domain_pddl, problem_pddl)
   domain = parser.parse_domain()
   problem = parser.parse_problem(domain)
-  print('ecco')
+
   # Ground the PDDL
   task = grounding.ground(problem)
-  print('ah boh')
+
   # Get the search alg
   search_alg = planner.SEARCHES[search_alg_name]
-  print('bella ciao')
+
   if heuristic_name is None:
-    print('so entrato')
+
     plan=search_alg(task)
-    print('sto uscendo')
+
     return plan
   
   # Get the heuristic
   heuristic = planner.HEURISTICS[heuristic_name](task)
-  print('ma perchè ci metto così tanto?')
+
   plan=search_alg(task, heuristic)
-  print('almeno è andato')
+
   # Run planning
   return plan
-
-'''
-def alternativa(domain_pddl, problem_pddl):
-  # Crea un'istanza del pianificatore
-  planner = Planner("path/to/domain.pddl", "path/to/problem.pddl")
-
-  # Risolvi il problema PDDL
-  solution = planner.solve()
-
-  # Stampa la prima azione
-  print(solution[0])
-'''
