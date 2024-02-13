@@ -104,7 +104,9 @@ public class PuzzleGame {
                                 Log.d(Constants.TAG, "Image dropped here: " + newPosition);
                                 // Perform swapImages logic using the positions
                                 swapImages( draggedIndex, newPosition);
+                                unhighlightView((ImageView) v);
                                 draggedImageView.setVisibility(View.VISIBLE);
+                                lastClickedPosition = draggedIndex;
                                 }
                                 break;
                 }
