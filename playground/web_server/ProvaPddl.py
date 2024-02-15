@@ -5,7 +5,7 @@ from run_planning import run_planning, generate_pddl_file
 import re
 import time
 
-initial_state=[7, 0, 1, 3, 4, 8, 5, 6, 2]
+initial_state=[1, 6, 2, 5, 0, 7, 4, 3, 8]
 
 generate_pddl_file(initial_state)
 
@@ -13,8 +13,8 @@ generate_pddl_file(initial_state)
 domain_file = 'puzzle_domain.pddl'
 problem_file = 'puzzle_problem.pddl'
 
-alg= "ehs"
-heu= "hff" #"hff"
+alg= "ehs" #ehs
+heu= "landmark" #"hff"
 
 start_time = time.time()
 plan= run_planning(domain_file, problem_file, alg, heu)

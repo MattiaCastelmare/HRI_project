@@ -67,6 +67,8 @@ class TabletServer(tornado.websocket.WebSocketHandler):
     problem_file = 'puzzle_problem.pddl'
     algorithm= "ehs"
     heuristic= "hff"
+    oldPlan_len=100000 # Define the number of action of the old planning
+    num_error=0 #Define number of errors committed by the user
 
     def check_origin(self, origin):
         return True
@@ -93,11 +95,17 @@ class TabletServer(tornado.websocket.WebSocketHandler):
             
             # Check if plan is empty
             if len(plan) == 0:
+                self.oldPlan_len=100000
+                self.num_error=0
                 error_message = "No plan available. Unable to perform action."
                 self.send_error(error_message)
                 return  # Exit the function if there is no plan
-            else:
-                # Compute the action 
+            
+            else:       
+                # Compute the number of action need to resolve the puzzle
+                num_action= len(plan)
+                
+                # Select the first action of the plan
                 action=str(plan[0]).split('\n')[0]
                 #print("The action chosen is", action)
                 
@@ -110,8 +118,28 @@ class TabletServer(tornado.websocket.WebSocketHandler):
                 
                 #Define the message to send to the web app
                 mess_toSend= 'PepperMove:' + str(puzzlePos1)+ ',' + str(puzzlePos2)
-                print(mess_toSend)
+                
+                if num_action >= self.oldPlan_len :
+                    self.num_error+=1
+                    print(f"The number of user's error are: {self.num_error}")
+                
+                if self.num_error==3 and len(plan)>1:
+                    # Select the second action of the plan
+                    action2=str(plan[1]).split('\n')[0]
+                    
+                    # Extract the two position to switch
+                    matches2 = re.findall(r"p(\d+)", action2)
+                    
+                    if len(matches2) >= 2:
+                        puzzleMove2Pos1 = matches2[0]
+                        puzzleMove2Pos2 = matches2[1]
+                    
+                    mess_toSend = mess_toSend.replace('PepperMove', '2_PepperMove')
+                    mess_toSend += ';' + str(puzzleMove2Pos1) + ',' + str(puzzleMove2Pos2)   
+                
                 self.send_message(mess_toSend)
+                self.oldPlan_len= num_action
+                
                 return
         
     def on_close(self):
@@ -140,7 +168,7 @@ def main():
     app = make_app()
     app.listen(server_port)
     try:
-        tornado.ioloop.PeriodicCallback(lambda: Server.send_message("Periodic message"), 3000).start()
+        #tornado.ioloop.PeriodicCallback(lambda: Server.send_message("Periodic message"), 3000).start()
         tornado.ioloop.IOLoop.current().start()
     except KeyboardInterrupt:
         print("Keyboard Interrupt ...")
