@@ -46,7 +46,7 @@ class PepperClient:
             self.connect_and_read()
         else:
             print("Received from Server: ", message)
-            if message.startwith("Game"):
+            if message.startwith("Game Started"):
                 difficulty = quiz()
                 self.send_difficulty_to_server(difficulty)
 
