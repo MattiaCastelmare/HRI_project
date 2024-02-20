@@ -82,6 +82,7 @@ class TabletServer(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message: str):
     # Forward the message to all other connected clients except the sender
+        print("Received message: ", message)
         if message.startswith("New indices:"):
             # Divide the string in two parts
             index_part = message.split(": ")[1].strip("[]")
@@ -139,6 +140,11 @@ class TabletServer(tornado.websocket.WebSocketHandler):
                 
                 self.send_message(mess_toSend)
                 self.oldPlan_len= num_action
+
+                return 
+            
+        if message.startswith("Difficulty:"):
+                print("Received difficulty: ", message)
                 
                 return
         
