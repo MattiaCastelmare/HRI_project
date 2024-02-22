@@ -5,8 +5,8 @@ sys.path.append(user_dir)
 from utils import*
 from run_planning import run_planning, generate_pddl_file
 
-PepperServer = None 
-TabletServer = None
+pepperServer = None 
+tabletServer = None
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -14,9 +14,10 @@ class MainHandler(tornado.web.RequestHandler):
 
 class PepperServer(tornado.websocket.WebSocketHandler):
     client_dict={}
+    
     def open(self):
-        global PepperServer
-        PepperServer = self
+        global pepperServer
+        pepperServer = self
         # Extract client name from the URL
         client_name = get_client_name_from_uri(self.request.uri)
         print("WebSocket opened for " + client_name)
@@ -28,7 +29,7 @@ class PepperServer(tornado.websocket.WebSocketHandler):
          try:
             if message.startswith("Difficulty:"):
                 print("Forwarding " + message + " to Tablet")
-                TabletServer.send_message(message)
+                tabletServer.send_message(message)
                 
          except tornado.websocket.WebSocketClosedError:
                 # Handle the case where the WebSocket is closed for the other client
@@ -39,11 +40,10 @@ class PepperServer(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
         # Remove the closed WebSocket from the clients list
         self.client_dict = {}
-        global PepperServer
-        PepperServer = None
+        global pepperServer
+        pepperServer = None
 
     
-    @classmethod
     def send_message(self, message: str):
         print(f"Sending message {message} to Pepper client")
         client = self.client_dict['info']
@@ -61,8 +61,8 @@ class TabletServer(tornado.websocket.WebSocketHandler):
     num_error=0 #Define number of errors committed by the user
 
     def open(self):
-        global TabletServer
-        TabletServer = self
+        global tabletServer
+        tabletServer = self
         # Extract client name from the URL
         client_name = get_client_name_from_uri(self.request.uri)
         print("WebSocket opened for Tablet client")
@@ -80,6 +80,7 @@ class TabletServer(tornado.websocket.WebSocketHandler):
             generate_pddl_file(index_list)
             plan= run_planning(self.domain_file, self.problem_file, self.algorithm, self.heuristic)
             print("The plan is: ", plan)
+            print("the client dict is:", self.client_dict)
             # Check if plan is empty
             if len(plan) == 0:
                 self.oldPlan_len=100000
@@ -120,7 +121,7 @@ class TabletServer(tornado.websocket.WebSocketHandler):
 
         if message == "Game Started !":
                 print("entra")
-                PepperServer.send_message("Game Started")
+                pepperServer.send_message("Game Started")
         return 
             
         
@@ -128,10 +129,9 @@ class TabletServer(tornado.websocket.WebSocketHandler):
         print("WebSocket closed")
         # Remove the closed WebSocket from the clients list
         self.client_dict = {}
-        global TabletServer
-        TabletServer = None
+        global tabletServer
+        tabletServer = None
     
-    @classmethod
     def send_message(self, message: str):
         print(f"Sending message {message} to Tablet client")
         print(self.client_dict)
