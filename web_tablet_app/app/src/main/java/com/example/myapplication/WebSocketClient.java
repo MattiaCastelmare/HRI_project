@@ -37,37 +37,9 @@ public class WebSocketClient extends WebSocketListener {
             int index2 = Integer.parseInt(indices[1].trim());
             // Send indices to the Puzzle
             puzzleGame.PepperSwapsPuzzlePieces(index1, index2);
-            System.out.println("Pepper is making a move, swapping: " + index1 + ", " + index2);
-        }
-        else if (text.startsWith("2_PepperMove:")) {
-            // Remove the prefix '2_PepperMove:'
-            String indicesPart = text.substring("2_PepperMove:".length()).trim();
-
-            // Divide the string in two parts --> the two move indices
-            String[] moves = indicesPart.split(";");
-
-            // First Move
-            String[] firstMoveIndices = moves[0].split(",");
-            int index1_firstMove = Integer.parseInt(firstMoveIndices[0].trim());
-            int index2_firstMove = Integer.parseInt(firstMoveIndices[1].trim());
-
-            // Second move
-            String[] secondMoveIndices = moves[1].split(",");
-            int index1_secondMove = Integer.parseInt(secondMoveIndices[0].trim());
-            int index2_secondMove = Integer.parseInt(secondMoveIndices[1].trim());
-
-            // Send indices to the Puzzle
-            puzzleGame.PepperSwapsPuzzlePieces(index1_firstMove, index2_firstMove);
-            puzzleGame.PepperSwapsPuzzlePieces(index1_secondMove, index2_secondMove);
-            System.out.println("Pepper is making two move, swapping: " + index1_firstMove + ", " + index2_firstMove + "and " + index1_secondMove + ", " + index2_secondMove);
         }
     }
 
-    // Credo vada CANCELLATA visto che lo abbiamo già definito sopra
-    @Override
-    public void onMessage(WebSocket webSocket, ByteString bytes) {
-        // Handle binary messages if needed
-    }
 
     @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {
@@ -83,9 +55,6 @@ public class WebSocketClient extends WebSocketListener {
         webSocket.send(message);
     }
 
-    public void disconnect() {
-        webSocket.close(1000, "Disconnecting");
-    }
 }
 
 

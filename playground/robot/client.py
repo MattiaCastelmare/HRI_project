@@ -6,7 +6,6 @@ from main import*
 
 class PepperClient:
     def __init__(self, io_loop):
-
         self.connection = None
         self.io_loop = io_loop
         # Set up a periodic callback every 5 seconds to send random numbers
@@ -21,7 +20,6 @@ class PepperClient:
         self.io_loop.stop()
 
     def connect_and_read(self):
-        
         print("Connecting to " + websocket_address + " ...")
         tornado.websocket.websocket_connect(
             url=websocket_address + self.name,
@@ -31,7 +29,6 @@ class PepperClient:
             ping_timeout=30,
         )
         
-
     def maybe_retry_connection(self, future):
         try:
             self.connection = future.result()
@@ -46,7 +43,7 @@ class PepperClient:
             self.connect_and_read()
         else:
             print("Received from Server: ", message)
-            if message.startwith("Game Started"):
+            if message.startswith("Game started"):
                 difficulty = quiz()
                 self.send_difficulty_to_server(difficulty)
 
