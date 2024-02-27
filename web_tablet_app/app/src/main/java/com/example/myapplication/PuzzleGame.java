@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class PuzzleGame {
         private final List<Integer> indices;
@@ -21,6 +23,7 @@ public class PuzzleGame {
         private final PieceAdapter adapter;
         private final WebSocketClient webSocketClient;
         private int lastClickedPosition = 0;
+        private final Timer timer = new Timer();
 
         // Constructor
         public PuzzleGame(List<Integer> initial_indices, RecyclerView recyclerView, Context context, WebSocketClient webSocketClient,PieceAdapter adapter) {
@@ -30,6 +33,20 @@ public class PuzzleGame {
                 this.adapter= adapter;
                 this.indices = initial_indices;
                 initializeGridView();
+                timer.schedule(new CheckIndicesTask(), 1000, 100); // period (in milliseconds)
+        }
+        private class CheckIndicesTask extends TimerTask {
+                @Override
+                public void run() {
+                        if (areIndicesInOrder()) {
+                                if (context instanceof MainActivity) {
+                                        MainActivity mainActivity = (MainActivity) context;
+                                        mainActivity.openWinLayout();
+                                        timer.cancel();
+                                        timer.purge();
+                                }
+                        }
+                }
         }
         private void initializeGridView() {
                 // Attach the adapter and layout manager to the RecyclerView
@@ -45,6 +62,15 @@ public class PuzzleGame {
                 String initial_message = "Initial random indices: " + indices.toString();
                 webSocketClient.sendMessage(initial_message);
                 Log.d(Constants.TAG, "Initial random indices: " + indices);
+        }
+        private boolean areIndicesInOrder() {
+                for (int i = 0; i < indices.size() - 1; i++) {
+                        if (indices.get(i) > indices.get(i + 1)) {
+                                // Indices are not in order
+                                return false;
+                        }
+                }
+                return true;
         }
         private void handleItemClick(int position) {
                 // Check if it's the first click
