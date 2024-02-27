@@ -2,8 +2,8 @@ from pddl_planning.definition import *
 
 class Planning():
     def __init__(self, algorithm_name, heuristic_name):
-        self.domain_file = "puzzle_domain.pddl"
-        self.problem_file = "puzzle_problem.pddl"
+        self.domain_file = user_dir + "/pddl_planning/puzzle_domain.pddl"
+        self.problem_file = user_dir + "/pddl_planning/puzzle_problem.pddl"
         self.algorithm_name = algorithm_name
         self.heuristic_name = heuristic_name
         self.oldPlan_len = 1000000
