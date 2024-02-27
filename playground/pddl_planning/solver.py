@@ -61,6 +61,7 @@ class Planning():
             return False
 
     def count_errors(self, num_actions):
-        print(f"The number of user's errors are: {self.num_error}")
+        
         if num_actions >= self.oldPlan_len:
             self.num_error += 1
+        print(f"The number of user's errors are: {self.num_error}")
