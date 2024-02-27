@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // HOMEPAGE
+        // GREETINGS
+        setContentView(R.layout.greetings);
         setContentView(R.layout.button);
         // Connect to Server in a separate thread
         new Thread(() -> {
