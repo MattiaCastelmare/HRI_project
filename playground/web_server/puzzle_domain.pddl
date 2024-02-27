@@ -1,4 +1,4 @@
-(define (domain puzzle2)
+(define (domain puzzle)
     (:requirements :strips)
     (:predicates (PIECE ?x)  (POSITION ?p)  (at ?p ?x))
     (:action swap

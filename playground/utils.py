@@ -20,3 +20,7 @@ server_port = "8888"
 #print("Websocket server for Pepper listening on port: " +  server_port)
 websocket_address = "ws://"+IPAddress+":"+server_port + "/websocket"
 print("The server has this address: " + websocket_address)
+
+# PLANNING CONSTANTS
+algorithm_name= "ehs"
+heuristic_name= "landmark"

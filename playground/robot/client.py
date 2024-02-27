@@ -3,15 +3,17 @@ user_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(user_dir)
 from utils import*
 from main import*
+from motion import*
 
 class PepperClient:
-    def __init__(self, io_loop):
-
+    def __init__(self, io_loop, session, tts_service):
         self.connection = None
         self.io_loop = io_loop
         # Set up a periodic callback every 5 seconds to send random numbers
         # self.periodic_callback = tornado.ioloop.PeriodicCallback(self.send_random_numbers, 5000)
         self.name = "/Pepper"
+        self.session = session
+        self.tts_service = tts_service
 
     def start(self):
         self.connect_and_read()
@@ -21,7 +23,6 @@ class PepperClient:
         self.io_loop.stop()
 
     def connect_and_read(self):
-        
         print("Connecting to " + websocket_address + " ...")
         tornado.websocket.websocket_connect(
             url=websocket_address + self.name,
@@ -31,7 +32,6 @@ class PepperClient:
             ping_timeout=30,
         )
         
-
     def maybe_retry_connection(self, future):
         try:
             self.connection = future.result()
@@ -46,8 +46,9 @@ class PepperClient:
             self.connect_and_read()
         else:
             print("Received from Server: ", message)
-            if message.startwith("Game Started"):
-                difficulty = quiz()
+            if message.startswith("Game started"):
+                difficulty = ask_questions(self.session, self.tts_service)
+                print("THE DIFFICULTY IS ", difficulty)
                 self.send_difficulty_to_server(difficulty)
 
     def send_message_from_client(self, message):
