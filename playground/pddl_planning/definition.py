@@ -8,6 +8,8 @@ from pddl.formatter import domain_to_string, problem_to_string
 from pddl.requirements import Requirements
 from pddl.logic.base import And
 
+user_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 def generation_constants(num_const, path_str):
     dictionary = dict()
     cos_list = []
@@ -51,9 +53,9 @@ def define_goal_state(pos_list, piece_list, at_pred):
     return goal_state
 
 def write_domain_and_problem_to_files(domain, prob_string):
-    with open("puzzle_domain.pddl", "w") as domain_file:
+    with open(user_dir + "/pddl_planning/puzzle_domain.pddl", "w") as domain_file:
         domain_file.write(domain_to_string(domain))
-    with open("puzzle_problem.pddl", "w") as problem_file:
+    with open(user_dir + "/pddl_planning/puzzle_problem.pddl", "w") as problem_file:
         problem_file.write(prob_string)
 
 def generate_pddl_file(index_list):

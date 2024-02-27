@@ -66,11 +66,11 @@ public class MainActivity extends AppCompatActivity {
         wsc.initializePuzzle(puzzleGame);
     }
     public void openWinLayout(){
-        int imageId = puzzleLayout.getChosenImage();
+        //int imageId = puzzleLayout.getChosenImage();
         runOnUiThread(() -> {
             setContentView(R.layout.win);
-            ImageView imageView = findViewById(R.id.solved_puzzle);
-            imageView.setImageResource(imageId);
+            //ImageView imageView = findViewById(R.id.solved_puzzle);
+            //imageView.setImageResource(imageId);
         });
     }
     public int[] printResolution() {
