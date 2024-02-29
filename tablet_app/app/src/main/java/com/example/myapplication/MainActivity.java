@@ -41,17 +41,17 @@ public class MainActivity extends AppCompatActivity {
         //setContentView(R.layout.questions);
         setContentView(R.layout.difficulty);
         // Connect to Server in a separate thread
-        /*
+
         new Thread(() -> {
             wsc = new WebSocketClient(Constants.SERVER_URL);
             // You can perform UI updates after the connection is established
             runOnUiThread(() -> {
                 // Set up the Play button
-                Button playButton = findViewById(R.id.playButton);
+                Button playButton = findViewById(R.id.easy);
                 playButton.setOnClickListener(view -> startGame());
             });
         }).start();
-        */
+        
 
     }
 

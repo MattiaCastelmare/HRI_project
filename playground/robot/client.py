@@ -49,11 +49,12 @@ class PepperClient:
             if message.startswith("User wants to play"):
                 difficulty = ask_questions(self.session, self.tts_service)
                 self.send_difficulty_to_server(difficulty)
+                suggest_difficulty(session=self.session, tts_service=self.tts_service, difficulty=difficulty)
                 
             if message.startswith("User made 3"):
                 makes_move_for_you(self.session, self.tts_service)
                 answer = raw_input("Enter your answer (yes, no): ")
-                self.send_message_from_client(answer)
+                self.send_answer_to_server(answer)
 
     def send_message_from_client(self, message):
         if self.connection:
@@ -71,6 +72,11 @@ class PepperClient:
     def send_difficulty_to_server(self, difficulty):
         # Method to send difficulty level chosen by the user to the server
         message = "Difficulty: {}".format(difficulty)
+        self.send_message_from_client(message)
+
+    def send_answer_to_server(self, answer):
+        # Method to send difficulty level chosen by the user to the server
+        message = "Answer is: {}".format(answer.lower())
         self.send_message_from_client(message)
 
         
