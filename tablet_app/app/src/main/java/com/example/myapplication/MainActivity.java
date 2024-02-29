@@ -37,9 +37,11 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
 
         // GREETINGS
-        setContentView(R.layout.greetings);
-        setContentView(R.layout.button);
+        //setContentView(R.layout.greetings);
+        //setContentView(R.layout.questions);
+        setContentView(R.layout.difficulty);
         // Connect to Server in a separate thread
+        /*
         new Thread(() -> {
             wsc = new WebSocketClient(Constants.SERVER_URL);
             // You can perform UI updates after the connection is established
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 playButton.setOnClickListener(view -> startGame());
             });
         }).start();
+        */
 
     }
 

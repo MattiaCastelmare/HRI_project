@@ -8,10 +8,12 @@
         <entry key="app/src/main/res/layout/activity_pepper.xml" value="0.33" />
         <entry key="app/src/main/res/layout/button.xml" value="0.1" />
         <entry key="app/src/main/res/layout/colors.xml" value="0.20153985507246377" />
+        <entry key="app/src/main/res/layout/difficulty.xml" value="0.15208333333333332" />
         <entry key="app/src/main/res/layout/greetings.xml" value="0.11744791666666667" />
         <entry key="app/src/main/res/layout/grid.xml" value="0.1" />
         <entry key="app/src/main/res/layout/images.xml" value="0.1" />
         <entry key="app/src/main/res/layout/index.html" value="0.11727456940222898" />
+        <entry key="app/src/main/res/layout/questions.xml" value="0.176" />
         <entry key="app/src/main/res/layout/variable_image_layout.xml" value="0.15364583333333334" />
         <entry key="app/src/main/res/layout/win.xml" value="0.15364583333333334" />
       </map>

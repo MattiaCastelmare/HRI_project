@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="orange">#FB8C00</color>
-    <color name="purple_200">#FFAB00</color> // QUESTO é QUELLO CHE USA PER LA TENDA DOVE SCRIVE MY APPLICATION
+    <color name="ocra">#FFAB00</color> // QUESTO é QUELLO CHE USA PER LA TENDA DOVE SCRIVE MY APPLICATION
+    <color name="purple_200">#371D98</color>
     <color name="purple_500">#371D98</color>
     <color name="purple_700">#FF3700B3</color>
+    <color name="teal_700">#FF03DAC5</color>
     <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#3AF092</color>
+    <color name="less_black">#1C1C0B</color>
     <color name="black">#FF000000</color>
     <color name="red">#E53935</color>
     <color name="red_orange">#F4511E</color>
     <color name="blue">#054B65</color>
     <color name="yellow">#FFD600</color>
-    <color name="ocra">#F3D685</color>
+    <color name="very_yellow">#F2EB2C</color>
 </resources>
