@@ -14,24 +14,25 @@ from motion import*
 puzzle_completed = True
 sequence_incorrect = True
 
-def try_connection():
+def try_connection(session, tts_service):
     io_loop = tornado.ioloop.IOLoop.current()
-    client = PepperClient(io_loop=io_loop)
+    client = PepperClient(io_loop=io_loop, session=session, tts_service=tts_service)
     io_loop.add_callback(client.start)
     io_loop.start()
 
 def main():
-    try_connection()
+    
     session, tts_service = initialize_robot()
-    answer = greeting(session=session, tts_service=tts_service)
+    answer = raw_input("Enter your answer (yes, no)") #greeting(session=session, tts_service=tts_service)
     if answer.lower() == "yes":
-        difficulty = ask_questions(session=session, tts_service=tts_service)
-        suggest_difficulty(session=session, tts_service=tts_service, difficulty=difficulty)
-        if sequence_incorrect:
-            Pepper_moves(session=session, tts_service=tts_service)
+        try_connection(session, tts_service)
+        # difficulty = ask_questions(session=session, tts_service=tts_service)
+        # suggest_difficulty(session=session, tts_service=tts_service, difficulty=difficulty)
+        # if sequence_incorrect:
+        #     Pepper_moves(session=session, tts_service=tts_service)
 
-        if puzzle_completed:
-            final(session=session, tts_service=tts_service)
+        # if puzzle_completed:
+        #     final(session=session, tts_service=tts_service)
    
     goodbye_and_talk(session=session, tts_service=tts_service)
     return  

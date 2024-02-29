@@ -23,6 +23,10 @@ class Server(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         client_name = self.get_client_name_from_uri(self.request.uri)
         print("Received message from " + client_name + ": " + message)
+        if message == "Hello from Pepper Robot!":
+            mess = "User wants to play"
+            Server.send_message(self, mess)
+            Server.forward_message(self, mess)
         if message.startswith("Initial random indices:"):
             # Divide the string in two parts
             index_part = message.split(": ")[1].strip("[]")
@@ -38,6 +42,7 @@ class Server(tornado.websocket.WebSocketHandler):
             mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
             Server.send_message(self, mess_toSend) 
             if len(swaps) == 2:
+                self.forward_message(self, "User made 3 errors")
                 swap = swaps[1]
                 pos1, pos2 = swap[0], swap[1]
                 mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)

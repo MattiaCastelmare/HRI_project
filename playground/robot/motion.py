@@ -228,7 +228,7 @@ def sentences(index):
         "According to what you have said I have chosen the hard level jigsaw puzzle for you",
         "This move is incorrect, can I help you?",
         "This move is correct, great!",
-        "You made 3 incorrect moves let me to help you by doing 2 correct moves",
+        "You made 3 incorrect moves, can I help you by doing 2 correct moves?",
         "You have completed the jigsaw puzzle, congratulation!",
         "Goodbye it was a pleasure playing with you"
     ]
@@ -284,13 +284,14 @@ def move_talk(robot, text, char, service):
     if char == "final dance":
         dance(robot)
     
+   
     service.say(text)
     return
 
 def greeting(session, tts_service):
     sentence = sentences(0)
     move_talk(robot=session, text=sentence, char="greeting", service=tts_service)
-    answer = raw_input("Enter your answer(yes, no): ")
+    answer = raw_input("Enter your answer (yes, no): ")
     return answer
 
 def ask_questions(session, tts_service):
@@ -336,6 +337,10 @@ def final(session, tts_service):
 def goodbye_and_talk(session, tts_service):
     sentence = sentences(11)
     move_talk(robot=session, text=sentence, char="goodbye", service=tts_service)
+
+def makes_move_for_you(session, tts_service):
+    sentence = sentences(9)
+    move_talk(robot=session, text=sentence, char="talk", service=tts_service)
 
 if __name__ == '__main__':
     pip = os.getenv('PEPPER_IP')
