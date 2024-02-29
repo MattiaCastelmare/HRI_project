@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
             Button play = findViewById(R.id.playButton);
             play.setOnClickListener(view -> openLayoutDifficulty());
         });
+        }).start();
     }
     public void openLayoutDifficulty(String difficulty){
         runOnUiThread(() -> {

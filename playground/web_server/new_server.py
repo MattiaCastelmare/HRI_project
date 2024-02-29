@@ -5,7 +5,7 @@ sys.path.append(user_dir)
 from utils import*
 from pddl_planning.solver import Planning
 import json
-
+moves=[]
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("WebSocket Server is running.")
@@ -13,7 +13,7 @@ class MainHandler(tornado.web.RequestHandler):
 class Server(tornado.websocket.WebSocketHandler):
     clients = []
     puzzleSolver = Planning(algorithm_name=algorithm_name, heuristic_name=heuristic_name)
-    moves=[]
+   
 
     def open(self):
         # Extract client name from the URL
@@ -43,7 +43,9 @@ class Server(tornado.websocket.WebSocketHandler):
             index_list = [int(elem.strip()) for elem in index_part.split(",")]
             swaps = self.puzzleSolver.solve(index_list)
             if len(swaps) == 2:
-                self.moves =swaps
+                global moves
+                moves =swaps
+                
                 self.forward_message(self, "User made 3 errors")
                 # swap = swaps[1]
                 # pos1, pos2 = swap[0], swap[1]
@@ -60,22 +62,22 @@ class Server(tornado.websocket.WebSocketHandler):
         
         if message.startswith("Answer is: "):
             if message.endswith("yes"):   
-                print("HERE")        
-                swap = self.moves[0]
+                
+                swap = moves[0]
                 pos1, pos2 = swap[0], swap[1]
                 mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
-                Server.send_message(self, mess_toSend) 
+                Server.forward_message(self, mess_toSend) 
 
-                swap = self.moves[1]
+                swap = moves[1]
                 pos1, pos2 = swap[0], swap[1]
                 mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
-                Server.send_message(self, mess_toSend)
+                Server.forward_message(self, mess_toSend)
         
             if message.endswith("no"): 
-                swap = self.moves[0]
+                swap = moves[0]
                 pos1, pos2 = swap[0], swap[1]
                 mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
-                Server.send_message(self, mess_toSend) 
+                Server.forward_message(self, mess_toSend) 
 
         # if message == "Game started !":
         #     Server.forward_message(self, message)
