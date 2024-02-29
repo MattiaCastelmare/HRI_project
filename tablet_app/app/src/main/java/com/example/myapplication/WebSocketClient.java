@@ -10,6 +10,7 @@ import okio.ByteString;
 public class WebSocketClient extends WebSocketListener {
     private WebSocket webSocket;
     private PuzzleGame puzzleGame;
+    private MainActivity activity;
 
     public WebSocketClient(String url) {
         OkHttpClient client = new OkHttpClient();
@@ -19,6 +20,7 @@ public class WebSocketClient extends WebSocketListener {
     public void initializePuzzle(PuzzleGame puzzleGame) {
         this.puzzleGame = puzzleGame;
     }
+    public void sendActivity(MainActivity  activity) {this.activity = activity; }
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
@@ -28,6 +30,14 @@ public class WebSocketClient extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         System.out.println("Received message from server: " + text);
+        if (text.equals("User wants to play")){
+            activity.openLayoutQuestionaire();
+        }
+        if (text.equals("Difficulty")){
+            // Extract the difficulty part from the message
+            String difficulty =  text.substring("Difficulty :".length()).trim();
+            activity.openLayoutDifficulty(difficulty);
+        }
         if (text.startsWith("PepperMove:")) {
             // Extract the indices part from the message
             String indicesPart = text.substring("PepperMove:".length()).trim();

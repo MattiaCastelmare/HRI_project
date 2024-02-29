@@ -17,21 +17,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class PuzzleGame {
-        private final List<Integer> indices;
-        private final RecyclerView recyclerView;
         private final Context context;
+        private final MainActivity mainActivity;
         private final PieceAdapter adapter;
+        private final RecyclerView recyclerView;
         private final WebSocketClient webSocketClient;
         private int lastClickedPosition = 0;
         private final Timer timer = new Timer();
+        private int imageId;
+        private final List<Integer> indices;
 
         // Constructor
-        public PuzzleGame(List<Integer> initial_indices, RecyclerView recyclerView, Context context, WebSocketClient webSocketClient,PieceAdapter adapter) {
-                this.recyclerView = recyclerView;
+        public PuzzleGame(Puzzle puzzleLayout, Context context, WebSocketClient webSocketClient) {
                 this.context = context;
+                this.mainActivity = (MainActivity) context;
+                this.recyclerView = mainActivity.findViewById(R.id.grid);
+                // Create dynamic class to modify it
+                this.indices = puzzleLayout.initial_indices;;
                 this.webSocketClient = webSocketClient;
-                this.adapter= adapter;
-                this.indices = initial_indices;
+                this.adapter= puzzleLayout.adapter;
+                this.imageId = puzzleLayout.random_id;
                 initializeGridView();
                 timer.schedule(new CheckIndicesTask(), 1000, 100); // period (in milliseconds)
         }
@@ -39,12 +44,11 @@ public class PuzzleGame {
                 @Override
                 public void run() {
                         if (areIndicesInOrder()) {
-                                if (context instanceof MainActivity) {
-                                        MainActivity mainActivity = (MainActivity) context;
-                                        mainActivity.openWinLayout();
-                                        timer.cancel();
-                                        timer.purge();
-                                }
+                                mainActivity.openWinLayout();
+                                ImageView imageView = mainActivity.findViewById(R.id.solved_puzzle);
+                                imageView.setImageResource(imageId);
+                                timer.cancel();
+                                timer.purge();
                         }
                 }
         }

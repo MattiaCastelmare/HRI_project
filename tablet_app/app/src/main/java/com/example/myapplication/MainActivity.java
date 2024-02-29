@@ -15,19 +15,13 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private WebSocketClient wsc;
-    private Puzzle puzzleLayout;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         // Print screen resolution
         int[] resolution = printResolution();
-
-        // Create Puzzle Layout
-        Context context = this;
-        puzzleLayout = new Puzzle(1, resolution, context, this);
 
         // Remove stuff from the Tablet
         getSupportActionBar().hide(); // Remove TitleBar
@@ -36,46 +30,51 @@ public class MainActivity extends AppCompatActivity {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        // GREETINGS
-        //setContentView(R.layout.greetings);
-        //setContentView(R.layout.questions);
-        setContentView(R.layout.difficulty);
+        // GREETINGS background
+        setContentView(R.layout.greetings);
+
         // Connect to Server in a separate thread
-        /*
         new Thread(() -> {
             wsc = new WebSocketClient(Constants.SERVER_URL);
-            // You can perform UI updates after the connection is established
-            runOnUiThread(() -> {
-                // Set up the Play button
-                Button playButton = findViewById(R.id.playButton);
-                playButton.setOnClickListener(view -> startGame());
-            });
+            wsc.sendActivity((MainActivity context) context)
         }).start();
-        */
-
-    }
-
-    private void startGame() {
-        wsc.sendMessage("Game started !");
-        // Handle the button click and transition to the Puzzle layout
-        setContentView(R.layout.activity_main);
-        // Layout and adapter and manager
-        RecyclerView recyclerView = findViewById(R.id.grid);
-        PieceAdapter adapter = puzzleLayout.adapter;
-        StaggeredGridLayoutManager layoutManager = puzzleLayout.layoutManager;
-        // Create dynamic class to modify it
-        List<Integer> initialIndices =puzzleLayout.initial_indices;
-        PuzzleGame puzzleGame = new PuzzleGame(initialIndices,recyclerView, this ,wsc,adapter);
-        // Send the puzzle to the Client
-        wsc.initializePuzzle(puzzleGame);
     }
     public void openWinLayout(){
-        //int imageId = puzzleLayout.getChosenImage();
+            int imageId = puzzleLayout.getChosenImage();
+            runOnUiThread(() -> {
+                setContentView(R.layout.layout);
+                ImageView imageView = findViewById(R.id.solved_puzzle);
+                imageView.setImageResource(imageId);
+            });
+        }
+    public void openLayoutQuestionaire(){
         runOnUiThread(() -> {
-            setContentView(R.layout.win);
-            //ImageView imageView = findViewById(R.id.solved_puzzle);
-            //imageView.setImageResource(imageId);
+            setContentView(R.layout.questions);
+            Button play = findViewById(R.id.playButton);
+            play.setOnClickListener(view -> openLayoutDifficulty());
         });
+    }
+    public void openLayoutDifficulty(String difficulty){
+        runOnUiThread(() -> {
+            setContentView(R.layout.difficulty);
+            text = "Pepper suggests " + difficulty;
+            findViewById(textView).setText(text);
+            Button easy = findViewById(R.id.easy);
+            Button medium = findViewById(R.id.medium);
+            Button hard = findViewById(R.id.hard);
+            easy.setOnClickListener(view -> startGame(1));
+            medium.setOnClickListener(view -> startGame(2));
+            hard.setOnClickListener(view -> startGame(3));
+        });
+    }
+    private void startGame(int difficulty) {
+        wsc.sendMessage("Game started !");
+        puzzleLayout = new Puzzle(difficulty, resolution, this);
+        // Handle the button click and transition to the Puzzle layout
+        setContentView(R.layout.activity_main);
+        PuzzleGame puzzleGame = new PuzzleGame(puzzleLayout, this , wsc);
+        // Send the puzzle to the Client
+        wsc.initializePuzzle(puzzleGame);
     }
     public int[] printResolution() {
         DisplayMetrics displayMetrics = new DisplayMetrics();

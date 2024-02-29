@@ -10,7 +10,6 @@
         android:id="@+id/textView"
         android:layout_width="900dp"
         android:layout_height="150dp"
-        android:text="Pepper suggests hard but you can choose the one you prefer"
         android:textColor="@color/purple_500"
         android:textSize="38sp"
         app:fontFamily="@font/rubik"
