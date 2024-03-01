@@ -41,10 +41,11 @@ class PepperClient:
             self.io_loop.call_later(3, self.connect_and_read)
 
     def on_message(self, message):
-        if message is None:
-            print("Disconnected, reconnecting...")
-            self.connect_and_read()
-        else:
+        #if message is None:
+            #print("entra qui")
+            #print("Disconnected, reconnecting...")
+            #self.connect_and_read()
+        
             print("Received from Server: ", message)
             if message.startswith("User wants to play"):
                 difficulty = ask_questions(self.session, self.tts_service)

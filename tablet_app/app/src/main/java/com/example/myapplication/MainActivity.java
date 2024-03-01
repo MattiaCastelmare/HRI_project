@@ -10,18 +10,20 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Button;
 import android.view.View;
+import android.widget.TextView;
 import android.content.Context;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private WebSocketClient wsc;
+    public int[] resolution;
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Print screen resolution
-        int[] resolution = printResolution();
+        resolution = printResolution();
 
         // Remove stuff from the Tablet
         getSupportActionBar().hide(); // Remove TitleBar
@@ -36,30 +38,29 @@ public class MainActivity extends AppCompatActivity {
         // Connect to Server in a separate thread
         new Thread(() -> {
             wsc = new WebSocketClient(Constants.SERVER_URL);
-            wsc.sendActivity((MainActivity context) context)
+            wsc.sendActivity( (MainActivity) this);
         }).start();
     }
-    public void openWinLayout(){
-            int imageId = puzzleLayout.getChosenImage();
-            runOnUiThread(() -> {
-                setContentView(R.layout.layout);
-                ImageView imageView = findViewById(R.id.solved_puzzle);
-                imageView.setImageResource(imageId);
-            });
-        }
+
     public void openLayoutQuestionaire(){
         runOnUiThread(() -> {
             setContentView(R.layout.questions);
             Button play = findViewById(R.id.playButton);
-            play.setOnClickListener(view -> openLayoutDifficulty());
+            play.setOnClickListener(view -> openLayoutDifficulty(null));
         });
-        }).start();
     }
     public void openLayoutDifficulty(String difficulty){
         runOnUiThread(() -> {
             setContentView(R.layout.difficulty);
-            text = "Pepper suggests " + difficulty;
-            findViewById(textView).setText(text);
+            String text;
+            if (difficulty == null) {
+                // Human skips the questionnaire
+                text = "Choose puzzle difficulty";
+            } else {
+                text = "Pepper suggests " + difficulty;
+            }
+            TextView textView = findViewById(R.id.title);
+            textView.setText(text);
             Button easy = findViewById(R.id.easy);
             Button medium = findViewById(R.id.medium);
             Button hard = findViewById(R.id.hard);
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void startGame(int difficulty) {
         wsc.sendMessage("Game started !");
-        puzzleLayout = new Puzzle(difficulty, resolution, this);
+        Puzzle puzzleLayout = new Puzzle(difficulty, resolution, this);
         // Handle the button click and transition to the Puzzle layout
         setContentView(R.layout.activity_main);
         PuzzleGame puzzleGame = new PuzzleGame(puzzleLayout, this , wsc);

@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -24,7 +25,7 @@ public class PuzzleGame {
         private final WebSocketClient webSocketClient;
         private int lastClickedPosition = 0;
         private final Timer timer = new Timer();
-        private int imageId;
+        private final int imageId;
         private final List<Integer> indices;
 
         // Constructor
@@ -36,7 +37,7 @@ public class PuzzleGame {
                 this.indices = puzzleLayout.initial_indices;;
                 this.webSocketClient = webSocketClient;
                 this.adapter= puzzleLayout.adapter;
-                this.imageId = puzzleLayout.random_id;
+                this.imageId = puzzleLayout.chosen_images[puzzleLayout.random_id];
                 initializeGridView();
                 timer.schedule(new CheckIndicesTask(), 1000, 100); // period (in milliseconds)
         }
@@ -44,9 +45,14 @@ public class PuzzleGame {
                 @Override
                 public void run() {
                         if (areIndicesInOrder()) {
-                                mainActivity.openWinLayout();
-                                ImageView imageView = mainActivity.findViewById(R.id.solved_puzzle);
-                                imageView.setImageResource(imageId);
+                                mainActivity.runOnUiThread(() -> {
+                                        mainActivity.setContentView(R.layout.win);
+                                        ImageView imageView = mainActivity.findViewById(R.id.solved_puzzle);
+                                        imageView.setImageResource(imageId);
+                                        // Restart by choosing the difficulty
+                                        Button play_again = mainActivity.findViewById(R.id.play_again);
+                                        play_again.setOnClickListener(view -> mainActivity.openLayoutDifficulty(null));
+                                });
                                 timer.cancel();
                                 timer.purge();
                         }

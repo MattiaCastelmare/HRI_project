@@ -33,7 +33,7 @@ public class WebSocketClient extends WebSocketListener {
         if (text.equals("User wants to play")){
             activity.openLayoutQuestionaire();
         }
-        if (text.equals("Difficulty")){
+        if (text.startsWith("Difficulty:")){
             // Extract the difficulty part from the message
             String difficulty =  text.substring("Difficulty :".length()).trim();
             activity.openLayoutDifficulty(difficulty);

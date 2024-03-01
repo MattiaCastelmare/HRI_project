@@ -15,7 +15,7 @@ class Planning():
             generate_pddl_file(index_list)
             plan = self.generate_plan()
             if self.check_empty_plan(plan):
-                raise Exception("No plan available. Unable to perform action.")
+                return None
             print("The plan is: ", plan)
             # Compute the number of action need to resolve the puzzle
             num_action = len(plan)

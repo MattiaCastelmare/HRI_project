@@ -1,6 +1,5 @@
 import os, sys
 user_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(user_dir)
 sys.path.append(user_dir)
 from utils import*
 from pddl_planning.solver import Planning
@@ -30,6 +29,9 @@ class Server(tornado.websocket.WebSocketHandler):
             mess = "User wants to play"
             Server.send_message(self, mess)
             Server.forward_message(self, mess)
+        
+        if message.startswith("Difficulty:"):
+            Server.forward_message(self, message)
 
         if message.startswith("Initial random indices:"):
             # Divide the string in two parts
@@ -42,27 +44,29 @@ class Server(tornado.websocket.WebSocketHandler):
             index_part = message.split(": ")[1].strip("[]")
             index_list = [int(elem.strip()) for elem in index_part.split(",")]
             swaps = self.puzzleSolver.solve(index_list)
-            if len(swaps) == 2:
-                global moves
-                moves =swaps
-                
-                self.forward_message(self, "User made 3 errors")
-                # swap = swaps[1]
-                # pos1, pos2 = swap[0], swap[1]
-                # mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
-                # Server.send_message(self,mess_toSend)
-            elif len(swaps) > 2 or len(swaps)<1:
-                raise Exception("Too many or too little actions")
+            if swaps:
+                if len(swaps) == 2:
+                    global moves
+                    moves =swaps
+                    
+                    Server.forward_message(self, "User made 3 errors")
+                    # swap = swaps[1]
+                    # pos1, pos2 = swap[0], swap[1]
+                    # mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
+                    # Server.send_message(self,mess_toSend)
+                elif len(swaps) > 2 or len(swaps)<1:
+                    raise Exception("Too many or too little actions")
+                else:
+                    swap = swaps[0]
+                    pos1, pos2 = swap[0], swap[1]
+                    mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
+                    Server.send_message(self, mess_toSend)
             else:
-                swap = swaps[0]
-                pos1, pos2 = swap[0], swap[1]
-                mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
-                Server.send_message(self, mess_toSend) 
+                print("Game Finished")
+                Server.forward_message(self, "Game Finished ")
 
-        
         if message.startswith("Answer is: "):
             if message.endswith("yes"):   
-                
                 swap = moves[0]
                 pos1, pos2 = swap[0], swap[1]
                 mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)

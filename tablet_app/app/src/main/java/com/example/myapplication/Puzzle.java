@@ -22,6 +22,7 @@ public class Puzzle {
     int imageHeight, imageWidth;
     int pieceWidth, pieceHeight;
     int random_id, count, difficulty;
+    int [] chosen_images;
     private final Context context;
     private final Activity parentActivity;
     ArrayList<Piece> pieces;
@@ -29,13 +30,13 @@ public class Puzzle {
     StaggeredGridLayoutManager layoutManager;
     List<Integer> initial_indices = new ArrayList<>();
 
-    public Puzzle(int difficulty, int[] resolution, Context context, Activity parentActivity) {
-        this.parentActivity = parentActivity;
+    public Puzzle(int difficulty, int[] resolution, Context context) {
+        this.parentActivity = (MainActivity) context;;
         this.context = context;
         this.screenHeight = resolution[0];
         this.screenWidth = resolution[1];
         this.difficulty = difficulty;
-        int[] chosen_images = chooseDifficulty(difficulty);
+        this.chosen_images = chooseDifficulty(difficulty);
         getRandomImage(chosen_images);
         ResizeImage();
         setRandomImage(chosen_images);
