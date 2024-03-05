@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.questions);
             Button play = findViewById(R.id.playButton);
             play.setOnClickListener(view -> {
-                wsc.sendMessage("Questions skipped");
+                wsc.sendMessage("Button pressed");
                 openLayoutDifficulty(null);
             });
         });

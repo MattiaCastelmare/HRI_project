@@ -50,7 +50,7 @@ class PepperClient:
                 answer = raw_input("Enter your answer (yes, no): ")
                 self.send_answer_to_server(answer)
                 
-            if message.startswith("Questions skipped"):
+            if message.startswith("Button pressed"):
                 self.stop_questions = True
                 
     def send_message_from_client(self, message):

@@ -73,7 +73,8 @@ def questionaire(client, tts_service, session):
         else:
             difficulty = difficulties(1) if attitude_to_logic.lower() in ["no", "not so much"] else difficulties(2)
         return difficulty
-    else: return None
+    else: 
+        return None
     
 
 def simulation(session,tts_service):
@@ -128,7 +129,8 @@ def main():
         pepperRobot.start_activity("playing") ## DA QUI NON ESC QUINDI TROVARE MODO DI FARLO USCIRE, BISOGNA PENSARCI E DECIDERLO INSIEME
     else:
         print("The user did not answer all the questions")
-        ## Questo quando scade timeout delle domande o quando arriva il mex 
+        ## Questo quando scade timeout delle domande o quando arriva il mex
+        ### FARE DUE CASI DIVERSI
         
 
 if __name__ == "__main__":

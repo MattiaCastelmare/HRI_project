@@ -26,7 +26,7 @@ class Server(tornado.websocket.WebSocketHandler):
         if message == ("User wants to play"):
             Server.forward_message(self, message)
         
-        if message == "Questions skipped":
+        if message == "Button pressed":
             Server.forward_message(self, message)
         
         if message.startswith("The suggsted difficulty:"):
