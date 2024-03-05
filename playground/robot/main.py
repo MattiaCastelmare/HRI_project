@@ -50,32 +50,6 @@ def start_client(session, tts_service):
     io_loop.add_callback(clientPepper.start)
     io_loop.start()
     
-def questionaire(client, tts_service, session):
-    introduction_sentence = sentences(1)
-    move_talk(robot=session, text=introduction_sentence, char="talk", service=tts_service)
-    
-    age_question = sentences(2)
-    move_talk(robot=session, text=age_question, char=" ", service=tts_service)
-    #age = raw_input("INPUT: Enter your age in number: ")
-    age = input_thread("Enter your age in number: ", client)
-    print(age)
-
-    logic_puzzle_question = sentences(3)
-    move_talk(robot=session, text=logic_puzzle_question, char="talk", service=tts_service)
-    #attitude_to_logic = raw_input("INPUT: Enter your answer(yes, no, not so much): ")
-    attitude_to_logic = input_thread("Enter your answer(yes, no, not so much): ", client)
-
-    if age and attitude_to_logic:
-        if age < 10:
-            difficulty = difficulties(0) if attitude_to_logic.lower() in ["no", "not so much"] else difficulties(1)
-        elif 10 <= age <= 18:
-            difficulty = difficulties(1) if attitude_to_logic.lower() in ["no", "not so much"] else difficulties(2)
-        else:
-            difficulty = difficulties(1) if attitude_to_logic.lower() in ["no", "not so much"] else difficulties(2)
-        return difficulty
-    else: 
-        return None
-    
 
 def simulation(session,tts_service):
     global pepperRobot
@@ -86,6 +60,7 @@ def simulation(session,tts_service):
     user_input = raw_input("\nINPUT: Enter 'stop' to approach the robot: ")
     if user_input == 'stop': 
         pepperRobot.stop_activity()
+        greeting(session, tts_service)
     
     print("\nMAIN: Waiting 1 sec ... ")
     time.sleep(1)
@@ -100,8 +75,11 @@ def simulation(session,tts_service):
         return
     else:
         print("\nMAIN: Human doesn't want to play")
+        print("\nMAIN: Waiting 1 sec ... ")
+        time.sleep(1)
         goodbye_and_talk(session=session, tts_service=tts_service)
         simulation(session=session, tts_service=tts_service)
+
     
 
 def main():
