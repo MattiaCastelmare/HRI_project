@@ -19,18 +19,20 @@ class Robot:
     def _activity(self, task):
         while self.flag:
             print("ROBOT THREAD: Pepper is " + task)
-            time.sleep(5)
+            time.sleep(8)
 
     def start_activity(self,task):
         self.flag = True
         self.task = task
         self.thread = threading.Thread(target=self._activity, args=(task,))
+        self.thread.setName("RobotThread")
         if task == "waiting":
             self.thread.daemon = True
         self.thread.start()
 
     def stop_activity(self):
         self.flag = False
+        self.thread = None
         if self.task == "waiting":
             print("ROBOT THREAD: Human Approached")
         elif self.task == "playing":
@@ -40,7 +42,7 @@ class Robot:
 puzzle_completed = True
 sequence_incorrect = True
 clientPepper = None
-timer = MyTimer(20)
+timer = MyTimer(10)
 pepperRobot = Robot()
 
 def start_client(session, tts_service):
@@ -51,13 +53,16 @@ def start_client(session, tts_service):
     io_loop.start()
     
 
+
+
 def simulation(session,tts_service):
     global pepperRobot
     # Pepper is idle and waits 
     pepperRobot.start_activity("waiting")
-
+    #print_active_threads()
     # Simulating human approaches
     user_input = raw_input("\nINPUT: Enter 'stop' to approach the robot: ")
+    print(user_input)
     if user_input == 'stop': 
         pepperRobot.stop_activity()
         greeting(session, tts_service)
@@ -80,7 +85,29 @@ def simulation(session,tts_service):
         goodbye_and_talk(session=session, tts_service=tts_service)
         simulation(session=session, tts_service=tts_service)
 
+def run(session=session, tts_service= tts_service):
+    simulation(session=session, tts_service= tts_service)
     
+    print("\nMAIN: Waiting 1 sec ... ")
+    time.sleep(1)
+
+    # Pepper does questionnaire to decide difficulty of the puzzle
+    difficulty = questionaire(clientPepper,timer,tts_service=tts_service, session=session)
+    
+    if difficulty and not clientPepper.stop_questions:
+        # ANSWERED ALL QUESTIONS
+        clientPepper.send_message_from_client("The suggested difficulty is:" + difficulty)
+        suggest_difficulty(session=session, tts_service=tts_service, difficulty=difficulty)
+        pepperRobot.start_activity("playing") 
+    if  not difficulty and not clientPepper.stop_questions:
+        # TIMER SCADUTO
+        print("The user did not answer all the questions, so we assume left")
+        run(session=session, tts_service= tts_service)
+    if not difficulty and clientPepper.stop_questions:
+        # PLAY BUTTON PRESSED
+        print("The user did not answer all the questions")
+        pepperRobot.start_activity("playing")
+
 
 def main():
     # Initialize Pepper Robot
@@ -91,24 +118,12 @@ def main():
     # Connect to the Server in another thread
     ws_thread = threading.Thread(target=start_client, args=(session,tts_service))
     ws_thread.daemon = True
+    ws_thread.setName("ClientThread")
     ws_thread.start()
-   
-    simulation(session=session, tts_service= tts_service)
     
-    print("\nMAIN: Waiting 1 sec ... ")
-    time.sleep(1)
+    print(1)
+    run(session=session, tts_service= tts_service)
 
-    # Pepper does questionnaire to decide difficulty of the puzzle
-    difficulty = questionaire(clientPepper,  tts_service=tts_service, session=session)
-    
-    if difficulty:
-        clientPepper.send_message_from_client("The suggested difficulty is:" + difficulty)
-        suggest_difficulty(session=session, tts_service=tts_service, difficulty=difficulty)
-        pepperRobot.start_activity("playing") ## DA QUI NON ESC QUINDI TROVARE MODO DI FARLO USCIRE, BISOGNA PENSARCI E DECIDERLO INSIEME
-    else:
-        print("The user did not answer all the questions")
-        ## Questo quando scade timeout delle domande o quando arriva il mex
-        ### FARE DUE CASI DIVERSI
         
 
 if __name__ == "__main__":

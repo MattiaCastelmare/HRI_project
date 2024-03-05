@@ -36,7 +36,7 @@ class PepperClient:
             self.connection = future.result()
             self.send_message_from_client("Hello from Pepper Client!")
         except:
-            print("CLIENT THREAD: Could not reconnect, retrying in 3 seconds...")
+            print("\nCLIENT THREAD: Could not reconnect, retrying in 3 seconds...")
             self.io_loop.call_later(3, self.connect_and_read)
 
     def on_message(self, message):
@@ -47,7 +47,7 @@ class PepperClient:
             print("CLIENT THREAD: Received from Server: ", message)
             if message.startswith("User made 3"):
                 makes_move_for_you(self.session, self.tts_service)
-                answer = raw_input("Enter your answer (yes, no): ")
+                answer = raw_input("(HELP) Enter your answer (yes, no): ")
                 self.send_answer_to_server(answer)
                 
             if message.startswith("Button pressed"):
@@ -64,11 +64,6 @@ class PepperClient:
         # Send two random numbers between 0 and 8 every 5 seconds
         random_numbers = [random.randint(0, 8) for _ in range(2)]
         message = "PepperMove: {}".format(','.join(map(str, random_numbers)))
-        self.send_message_from_client(message)
-
-    def send_difficulty_to_server(self, difficulty):
-        # Method to send difficulty level chosen by the user to the server
-        message = "Difficulty: {}".format(difficulty)
         self.send_message_from_client(message)
 
     def send_answer_to_server(self, answer):

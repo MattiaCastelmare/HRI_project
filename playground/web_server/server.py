@@ -29,7 +29,8 @@ class Server(tornado.websocket.WebSocketHandler):
         if message == "Button pressed":
             Server.forward_message(self, message)
         
-        if message.startswith("The suggsted difficulty:"):
+        if message.startswith("The suggested difficulty"):
+            print("entra")
             Server.forward_message(self, message)
 
         if message.startswith("Initial random indices:"):

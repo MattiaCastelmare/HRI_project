@@ -8,6 +8,9 @@ import os
 #import tornado.gen
 import threading, time
 from threading import Timer 
+import sys
+import select
+
 
 # SERVER IP
 # Get the external IP address
@@ -37,7 +40,7 @@ class MyTimer:
 
     def timeout_handler(self):
         print("\nTIME OVER!")
-        ## DECIDERE COSA DEVE FARE PEPPER 
+        # CHE FA PEPPER ?
 
     def start(self): 
         self.timer = Timer(self.timeout_duration, self.timeout_handler)
@@ -48,26 +51,62 @@ class MyTimer:
         self.timer = None 
 
 
+def input_with_timeout(prompt, timeout):
+    sys.stdout.write(prompt)
+    sys.stdout.flush()
+
+    ready, _, _ = select.select([sys.stdin], [], [], timeout)
+
+    if ready:
+        return sys.stdin.readline().strip()
+    else:
+        return None
+
+
 user_input = None
 input_lock = threading.Lock()
+stop_flag=True
 
 def my_input(text, client):
-    global user_input
+    global user_input, stop_flag
     local_input = None
-    while True:
+    stop_flag=True
+    while stop_flag:
+        
         time.sleep(1)
         if client.stop_questions:
             print("The player touched the button.")
             break
-        local_input = raw_input("INPUT in another thread: " + text)
+        local_input = input_with_timeout("INPUT in another thread: " + text,10)
         if local_input:
             with input_lock:
                 user_input = local_input
             break
 
+    return
+
 def input_thread(text, client):
-    global user_input
+    global user_input,stop_flag
     thread = threading.Thread(target=my_input, args=(text,client))
+    #thread.daemon = True
     thread.start()
+    thread.setName('questionThread')
     thread.join(timeout=10)
-    return user_input
+
+    if thread.is_alive():
+       stop_flag=False
+       #thread._Thread__stop()  
+       return user_input, True
+    else:
+        return user_input, False
+    
+
+#prova per vedere numeri thread
+def print_active_threads():
+    print("Active threads:", threading.active_count())
+    print("Thread IDs:", threading.enumerate())
+
+
+
+
+#description = 
