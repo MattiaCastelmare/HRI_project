@@ -31,11 +31,11 @@ public class WebSocketClient extends WebSocketListener {
     public void onMessage(WebSocket webSocket, String text) {
         System.out.println("Received message from server: " + text);
         if (text.equals("User wants to play")){
-            activity.openLayoutQuestionaire();
+            activity.openLayoutQuestionnaire();
         }
-        if (text.startsWith("Difficulty:")){
+        if (text.startsWith("The suggested difficulty is:")){
             // Extract the difficulty part from the message
-            String difficulty =  text.substring("Difficulty :".length()).trim();
+            String difficulty =  text.substring("The suggested difficulty is:".length()).trim();
             activity.openLayoutDifficulty(difficulty);
         }
         if (text.startsWith("PepperMove:")) {
@@ -49,7 +49,6 @@ public class WebSocketClient extends WebSocketListener {
             puzzleGame.PepperSwapsPuzzlePieces(index1, index2);
         }
     }
-
 
     @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {

@@ -13,7 +13,6 @@ class Server(tornado.websocket.WebSocketHandler):
     clients = []
     puzzleSolver = Planning(algorithm_name=algorithm_name, heuristic_name=heuristic_name)
    
-
     def open(self):
         # Extract client name from the URL
         client_name = self.get_client_name_from_uri(self.request.uri)
@@ -23,14 +22,14 @@ class Server(tornado.websocket.WebSocketHandler):
         
     def on_message(self, message):
         client_name = self.get_client_name_from_uri(self.request.uri)
-
         print("Received message from " + client_name + ": " + message)
-        if message == "Hello from Pepper Robot!":
-            mess = "User wants to play"
-            Server.send_message(self, mess)
-            Server.forward_message(self, mess)
+        if message == ("User wants to play"):
+            Server.forward_message(self, message)
         
-        if message.startswith("Difficulty:"):
+        if message == "Questions skipped":
+            Server.forward_message(self, message)
+        
+        if message.startswith("The suggsted difficulty:"):
             Server.forward_message(self, message)
 
         if message.startswith("Initial random indices:"):

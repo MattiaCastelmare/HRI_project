@@ -42,13 +42,17 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    public void openLayoutQuestionaire(){
+    public void openLayoutQuestionnaire() {
         runOnUiThread(() -> {
             setContentView(R.layout.questions);
             Button play = findViewById(R.id.playButton);
-            play.setOnClickListener(view -> openLayoutDifficulty(null));
+            play.setOnClickListener(view -> {
+                wsc.sendMessage("Questions skipped");
+                openLayoutDifficulty(null);
+            });
         });
     }
+
     public void openLayoutDifficulty(String difficulty){
         runOnUiThread(() -> {
             setContentView(R.layout.difficulty);
