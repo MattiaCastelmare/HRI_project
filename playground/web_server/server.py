@@ -3,7 +3,6 @@ user_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(user_dir)
 from utils import*
 from pddl_planning.solver import Planning
-import json
 moves=[]
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -30,8 +29,22 @@ class Server(tornado.websocket.WebSocketHandler):
             Server.forward_message(self, message)
         
         if message.startswith("The suggested difficulty"):
-            print("entra")
             Server.forward_message(self, message)
+
+        if message.startswith("Painting name:"):
+            Server.forward_message(self, message)
+        
+        if message == "Play again":
+            Server.forward_message(self,message)
+
+        if message == "Win":
+            Server.forward_message(self,message)
+            
+        if message == "Game started":
+            Server.forward_message(self,message)
+            
+        if message == "Exit":
+            Server.forward_message(self,message)
 
         if message.startswith("Initial random indices:"):
             # Divide the string in two parts

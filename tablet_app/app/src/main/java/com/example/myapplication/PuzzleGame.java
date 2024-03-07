@@ -45,6 +45,7 @@ public class PuzzleGame {
                 @Override
                 public void run() {
                         if (areIndicesInOrder()) {
+                                webSocketClient.sendMessage("Win");
                                 mainActivity.runOnUiThread(() -> {
                                         mainActivity.setContentView(R.layout.win);
                                         ImageView imageView = mainActivity.findViewById(R.id.solved_puzzle);
@@ -59,6 +60,10 @@ public class PuzzleGame {
                 }
         }
         private void initializeGridView() {
+                // Send image file name to the server
+                String fileName = Constants.getFileNameFromResourceId(imageId);
+                webSocketClient.sendMessage("Painting name:" + fileName);
+                System.out.println("Sending to server the name of painting"  + fileName);
                 // Attach the adapter and layout manager to the RecyclerView
                 StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(Constants.cols, StaggeredGridLayoutManager.HORIZONTAL);
                 recyclerView.setLayoutManager(layoutManager);

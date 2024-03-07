@@ -38,6 +38,12 @@ public class WebSocketClient extends WebSocketListener {
             String difficulty =  text.substring("The suggested difficulty is:".length()).trim();
             activity.openLayoutDifficulty(difficulty);
         }
+        if (text.equals("Play again")){
+            activity.openLayoutDifficulty(null);
+        }
+        if (text.equals("Exit")){
+            activity.openLayoutGreetings();
+        }
         if (text.startsWith("PepperMove:")) {
             // Extract the indices part from the message
             String indicesPart = text.substring("PepperMove:".length()).trim();

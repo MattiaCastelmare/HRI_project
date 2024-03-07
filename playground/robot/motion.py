@@ -354,69 +354,76 @@ def greeting(session, tts_service):
 
 
 ################## QUESTIONNARIE ABOUT THE DIFFICULTY TO SUGGEST #########################################
-def questionaire(client, timer, session, tts_service):
+def questionaire(client, session, tts_service):
+    global age
     introduction_sentence = sentences(1)
     move_talk(robot=session, text=introduction_sentence, char="talk", service=tts_service)
 
-    age_question = sentences(2)
-    move_talk(robot=session, text=age_question, char=" ", service=tts_service)
-    age, dead = input_thread("Enter your age in number: ", client)
-    if dead:
+    if not client.stop_questions:
+        age_question = sentences(2)
+        move_talk(robot=session, text=age_question, char=" ", service=tts_service)
+        age, dead = input_thread("Enter your age in number: ", client)
+        if dead:
+            return None
+    else:
         return None
-    print(type(age))
+
+    if not client.stop_questions:
+        logic_puzzle_question = sentences(3)
+        move_talk(robot=session, text=logic_puzzle_question, char="new talk", service=tts_service)
+        attitude_to_logic, dead =input_thread("Enter your answer (1,2,3,4,5): ",client)
+        if dead:
+            return None
+    else:
+        return None
+    #print(attitude_to_logic)
+
+    if not client.stop_questions:
+        patience = sentences(4)
+        move_talk(robot=session, text=patience, char="talk", service=tts_service)
+        how_much_patience, dead = input_thread("Enter your answer (little, enough, a lot): ",client)
+        if dead:
+            return None
+    else:
+        return None
+    #print(how_much_patience)
+
+    if not client.stop_questions:
+        art = sentences(5)
+        move_talk(robot=session, text=art, char = "", service=tts_service)
+        like_art, dead = input_thread("Enter you anser (little, enough, a lot): ",client)
+        if dead:
+            return None
+    else:
+        return None
+    #print(like_art)
+
     age=int(age)
-
-    logic_puzzle_question = sentences(3)
-    move_talk(robot=session, text=logic_puzzle_question, char="new talk", service=tts_service)
-    attitude_to_logic, dead =input_thread("Enter your answer (1,2,3,4,5): ",client)
-    if dead:
-        return None
-    print(attitude_to_logic)
     attitude_to_logic=int(attitude_to_logic)
+    if age < 10 and attitude_to_logic <= 4 and how_much_patience.lower() in ["little", "enough"] and like_art.lower() in ["little", "enough"]:
+        difficulty = difficulties(0)
+    
+    elif age < 10 and attitude_to_logic > 4 and how_much_patience.lower() in ["enough", "a lot"] and like_art.lower() in ["enough", "a lot"]:
+        difficulty = difficulties(1)
 
-    patience = sentences(4)
-    move_talk(robot=session, text=patience, char="talk", service=tts_service)
-    how_much_patience, dead = input_thread("Enter your answer (little, enough, a lot): ",client)
-    if dead:
-        return None
-    print(how_much_patience)
-
-    art = sentences(5)
-    move_talk(robot=session, text=art, char = "", service=tts_service)
-    like_art, dead = input_thread("Enter you anser (little, enough, a lot): ",client)
-    if dead:
-        return None
-    print(like_art)
-
-
-    if age and attitude_to_logic and how_much_patience and like_art:
-        if age < 10 and attitude_to_logic <= 4 and how_much_patience.lower() in ["little", "enough"] and like_art.lower() in ["little", "enough"]:
-            difficulty = difficulties(0)
-            print('entra')
-        
-        elif age < 10 and attitude_to_logic > 4 and how_much_patience.lower() in ["enough", "a lot"] and like_art.lower() in ["enough", "a lot"]:
-            difficulty = difficulties(1)
-
-        elif 10 <= age <= 18 and attitude_to_logic <= 3 and how_much_patience.lower() in ["little", "enough"] and like_art.lower() in ["little"]:
-            difficulty = difficulties(0)
-        
-        elif 10 <= age <= 18 and 3 <= attitude_to_logic <= 4 and how_much_patience.lower() in ["enough", "a lot"] and like_art.lower() in ["enough", "a lot"]:
-            difficulty = difficulties(1)
-        
-        elif 10 <= age <= 18 and attitude_to_logic == 5 and how_much_patience.lower() in ["a lot"] and like_art.lower() in ["a lot"]:
-            difficulty = difficulties(2)
-        
-        elif age > 18 and attitude_to_logic <= 3 and how_much_patience.lower() in ["little", "enough"] and like_art.lower() in ["little", "enough"] :
-            difficulty = difficulties(1)
-        
-        elif age > 18 and attitude_to_logic > 3 and how_much_patience.lower() in ["enough", "a lot"] and like_art.lower() in ["enough", "a lot"]:
-            difficulty = difficulties(2)
-        else:
-            difficulty = difficulties(1)
-            print('Non dovrebbe ')
-        return difficulty
-    else: 
-        return None
+    elif 10 <= age <= 18 and attitude_to_logic <= 3 and how_much_patience.lower() in ["little", "enough"] and like_art.lower() in ["little"]:
+        difficulty = difficulties(0)
+    
+    elif 10 <= age <= 18 and 3 <= attitude_to_logic <= 4 and how_much_patience.lower() in ["enough", "a lot"] and like_art.lower() in ["enough", "a lot"]:
+        difficulty = difficulties(1)
+    
+    elif 10 <= age <= 18 and attitude_to_logic == 5 and how_much_patience.lower() in ["a lot"] and like_art.lower() in ["a lot"]:
+        difficulty = difficulties(2)
+    
+    elif age > 18 and attitude_to_logic <= 3 and how_much_patience.lower() in ["little", "enough"] and like_art.lower() in ["little", "enough"] :
+        difficulty = difficulties(1)
+    
+    elif age > 18 and attitude_to_logic > 3 and how_much_patience.lower() in ["enough", "a lot"] and like_art.lower() in ["enough", "a lot"]:
+        difficulty = difficulties(2)
+    else:
+        difficulty = difficulties(1)
+        print('Non dovrebbe ')
+    return difficulty
 ##########################################################################################################
 
 
@@ -444,9 +451,11 @@ def makes_move_for_you(session, tts_service):
 
 
 ############## PEPPER MAKES THE FINAL DANCE TO CELEBRATE THE VICTORY #####################################    
-def final(session, tts_service):
+def final(description , session, tts_service ):
     sentence = sentences(10)
     move_talk(robot=session, text=sentence, char="final dance", service=tts_service)
+    move_talk(robot=session, text=description, char="new talk", service=tts_service)
+
 ##########################################################################################################
     
 

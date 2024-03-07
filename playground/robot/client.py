@@ -14,6 +14,9 @@ class PepperClient:
         self.session = session
         self.tts_service = tts_service
         self.stop_questions = False
+        self.win_flag = False
+        #self.started_playing = False
+        self.painting_name = None
   
     def start(self):
         self.connect_and_read()
@@ -40,23 +43,37 @@ class PepperClient:
             self.io_loop.call_later(3, self.connect_and_read)
 
     def on_message(self, message):
+        global win_flag
         if message is None:
             print("Message is empty")
             self.connect_and_read()
         else:
-            print("CLIENT THREAD: Received from Server: ", message)
+            print("\nCLIENT THREAD: Received from Server: " +  message)
             if message.startswith("User made 3"):
                 makes_move_for_you(self.session, self.tts_service)
-                answer = raw_input("(HELP) Enter your answer (yes, no): ")
-                self.send_answer_to_server(answer)
+                answer = input_with_timeout("(HELP) Enter your answer (yes, no): ",10)
+                if answer:
+                    self.send_answer_to_server(answer)
                 
-            if message.startswith("Button pressed"):
+            if message == "Button pressed":
                 self.stop_questions = True
+            
+            if message == "Win":
+                self.win_flag = True
+            
+            if message == "Game started":
+                #self.started_playing = True
+                # rinizializza la flag del client della win 
+                self.win_flag = False
+
+            if message.startswith("Painting name"):
+                self.painting_name = message.replace("Painting name:", "").replace(".jpg", "")
+
                 
     def send_message_from_client(self, message):
         if self.connection:
             self.connection.write_message(message)
-            print("CLIENT THREAD: Sent to the Server: " + message)
+            print("\nCLIENT THREAD: Sent to the Server: " + message)
         else:
             print("Could not send message")
 

@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.content.Context;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private WebSocketClient wsc;
@@ -22,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Initialize the resource map
+        Constants.initializeResourceMap();
+        Constants.printResourceIdsAndNames();
+
         // Print screen resolution
         resolution = printResolution();
 
@@ -38,10 +44,15 @@ public class MainActivity extends AppCompatActivity {
         // Connect to Server in a separate thread
         new Thread(() -> {
             wsc = new WebSocketClient(Constants.SERVER_URL);
-            wsc.sendActivity( (MainActivity) this);
+            wsc.sendActivity((MainActivity) this);
         }).start();
     }
 
+    public void openLayoutGreetings(){
+        runOnUiThread(() -> {
+            setContentView(R.layout.greetings);
+        });
+    }
     public void openLayoutQuestionnaire() {
         runOnUiThread(() -> {
             setContentView(R.layout.questions);
@@ -52,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
             });
         });
     }
-
     public void openLayoutDifficulty(String difficulty){
         runOnUiThread(() -> {
             setContentView(R.layout.difficulty);
@@ -74,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     private void startGame(int difficulty) {
-        wsc.sendMessage("Game started !");
+        wsc.sendMessage("Game started");
         Puzzle puzzleLayout = new Puzzle(difficulty, resolution, this);
         // Handle the button click and transition to the Puzzle layout
         setContentView(R.layout.activity_main);
