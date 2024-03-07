@@ -148,6 +148,7 @@ def run(session, tts_service):
         # ANSWERED ALL QUESTIONS
         clientPepper.send_message_from_client("The suggested difficulty is:" + difficulty)
         suggest_difficulty(session=session, tts_service=tts_service, difficulty=difficulty)
+        show_tablet(session=session, tts_service=tts_service)
         pepperRobot.start_activity("playing")
         check_win(session=session, tts_service= tts_service)
     if  not difficulty and not clientPepper.stop_questions:
@@ -157,6 +158,7 @@ def run(session, tts_service):
     if not difficulty and clientPepper.stop_questions:
         # PLAY BUTTON PRESSED
         print("The user did not answer all the questions but the play button was pressed")
+        show_tablet(session=session, tts_service=tts_service)
         pepperRobot.start_activity("playing")
         check_win(session=session, tts_service= tts_service)
     else:

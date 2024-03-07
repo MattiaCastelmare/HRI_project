@@ -247,6 +247,24 @@ def talk(robot, n_hands = 2):
         jointValues.append(-2.7)
         times.append(0.6)
 
+def show(robot, n_hands=2):
+    session = robot.service("ALMotion")
+    isAbsolute = True
+    jointNames = ["RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RWristYaw", 
+                  "RElbowYaw", "RHand", "HipRoll", "HeadPitch"]
+    jointValues = [1.2, -0.46, 3, 1.5, 1, 0.98, -0.07, 0.7]  # Adjust the value of RElbowYaw according to your requirement
+    times = [1.0, 1.0, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
+    times = [time * 0.7 for time in times]
+    
+    if n_hands == 2:
+        jointNames += ["LShoulderPitch", "LShoulderRoll", "LElbowRoll", "LWristYaw", 
+                       "LElbowYaw", "LHand"]
+        jointValues += [1.2, 0.46, -3, -1.5, -1, 0.98]
+        times += [0.7 for _ in range(6)]
+    for i in range(3):
+        session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
+
+
 
 # TALK WITH ONLY ONE ARM AND HAND MOVING
 def new_talk(robot, n_hands = 2):
@@ -293,7 +311,7 @@ def cheering(robot, which='R'): # or 'R'/'L' for right/left arm
 def sentences(index):
     sentence = [
         "Hi, I'm PEPPER ART! Pleased to meet you. I have some puzzles about some works of art, do you want to play with me to solve them?",
-        "Great! Let's play together. Before starting the game I want to ask you some questions about yourself.",
+        "Before starting the game I want to ask you some questions about yourself.",
         "What is your age?",
         "From 1 to 5 how much do you like solving logic problems?",
         "How patient are you when it comes to solving puzzles?",
@@ -303,7 +321,8 @@ def sentences(index):
         "According to what you have said I have chosen the hard level jigsaw puzzle for you.",
         "You made 3 incorrect moves, can I help you by doing 2 correct moves?",
         "You have completed the jigsaw puzzle, congratulation!",
-        "Goodbye, it was a pleasure playing with you."
+        "Goodbye, it was a pleasure playing with you.",
+        "Great! Let's play together. "
     ]
     return sentence[index]
 
@@ -381,6 +400,8 @@ def move_talk(robot, text, char, service):
     
     if char == "final dance":
         final_dance(robot)
+    if char == "show":
+        show(robot)
     
    
     service.say(text)
@@ -480,7 +501,10 @@ def suggest_difficulty(session, tts_service, difficulty):
         move_talk(robot=session, text=sentence, char="new talk", service=tts_service)
 ##########################################################################################################
 
-
+############# PEPPER SHOWS THE TABLET WITH THE PUZZLE ###################################################
+def show_tablet(session, tts_service):
+    sentence = sentences(12)
+    move_talk(robot=session, text=sentence, char="show", service=tts_service)
 
 ############# PEPPER SAYS THAT YOU MADE 3 ERRORS AND MAKES 2 MOVE FOR YOU ################################   
 def makes_move_for_you(session, tts_service):
@@ -530,3 +554,4 @@ if __name__ == '__main__':
     app = qi.Application(["App", "--qi-url=" + url])
     app.start()
     session = app.session   
+
