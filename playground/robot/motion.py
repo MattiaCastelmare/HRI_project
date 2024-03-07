@@ -367,7 +367,12 @@ def move_talk(robot, text, char, service):
 
     if char == "talk3":
         talking3(robot)
-    
+
+    if char =="good move":
+        cheering(robot)
+        
+    if char == "bad move":
+        talk(robot)
     if char == "no":
         no_with_head(robot)
     

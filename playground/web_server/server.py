@@ -56,7 +56,7 @@ class Server(tornado.websocket.WebSocketHandler):
         if  message.startswith("New indices:"):
             index_part = message.split(": ")[1].strip("[]")
             index_list = [int(elem.strip()) for elem in index_part.split(",")]
-            swaps = self.puzzleSolver.solve(index_list)
+            swaps, play_well = self.puzzleSolver.solve(index_list)
             if swaps:
                 if len(swaps) == 2:
                     global moves
@@ -70,7 +70,6 @@ class Server(tornado.websocket.WebSocketHandler):
                 elif len(swaps) > 2 or len(swaps)<1:
                     raise Exception("Too many or too little actions")
                 else:
-                    
                     if not play_well:
                         Server.forward_message(self, "Uncorrect move")
                     else:

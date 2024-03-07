@@ -20,7 +20,6 @@ class Planning():
             # Compute the number of action need to resolve the puzzle
             num_action = len(plan)
             play_well = self.count_errors(num_actions=num_action)
-            self.count_errors(num_actions=num_action)
             swaps.append(self.generate_swap(action=plan[0]))
             if self.num_error == 3:
                 swaps.append(self.generate_swap(action=plan[1]))
@@ -62,7 +61,9 @@ class Planning():
             return False
 
     def count_errors(self, num_actions):
+        print("\nNUM ERRORS:", self.num_error)
         if num_actions >= self.oldPlan_len:
+            print("\nONE ERROR MADE")
             self.num_error += 1
             return False
         print(f"The number of user's errors are: {self.num_error}")

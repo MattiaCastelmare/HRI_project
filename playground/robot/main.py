@@ -71,18 +71,21 @@ def simulation(session,tts_service):
     #time.sleep(1)
 
     # Pepper greets and asks to play
-    timer.start()
-    user_input = raw_input("\nDo you want to play? (yes, no) ")
-    timer.stop()
+
+    user_input = input_with_timeout("\nDo you want to play? (yes, no) ", 10)
+
     if user_input and user_input.lower() == "yes":
         print("MAIN: Human wants to play")
         clientPepper.send_message_from_client("User wants to play")
         return
-    else:
+    if user_input and user_input.lower() == "no":
         print("\nMAIN: Human doesn't want to play")
         print("\nMAIN: Waiting 1 sec ... ")
         time.sleep(1)
         goodbye_and_talk(session=session, tts_service=tts_service)
+        simulation(session=session, tts_service=tts_service)
+    else:
+        print("\nMAIN: Human didn't answer")
         simulation(session=session, tts_service=tts_service)
 
 def get_painting_text(age):
@@ -113,7 +116,7 @@ def puzzle_completed(robot, session, service):
     final(description=painting_text, session=session, tts_service= service)
     # ASKS USER IF HE WANTS TO PLAY AGAIN
     play_again = input_with_timeout("Enter yes to play again",10)
-    if play_again.lower() == "yes":
+    if play_again and play_again.lower() == "yes":
         # GO BACK TO THE CHOOSEN DIFFICULTY SCHERMATA
         clientPepper.send_message_from_client("Play again")
         # Controlla se ha vinto
