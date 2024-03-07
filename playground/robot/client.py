@@ -68,7 +68,12 @@ class PepperClient:
 
             if message.startswith("Painting name"):
                 self.painting_name = message.replace("Painting name:", "").replace(".jpg", "")
-
+                
+            if message.startswith("Uncorrect"):
+                bad_move(self.session, self.tts_service)
+                
+            if message.startswith("Correct"):
+                cheer_move(self.session, self.tts_service)
                 
     def send_message_from_client(self, message):
         if self.connection:

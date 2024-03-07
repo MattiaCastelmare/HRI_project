@@ -51,7 +51,7 @@ class Server(tornado.websocket.WebSocketHandler):
             index_part = message.split(": ")[1].strip("[]")
             # Put the indices in a list
             first_indices = [int(elem.strip()) for elem in index_part.split(",")]
-            swaps = self.puzzleSolver.solve(first_indices)
+            swaps, play_well = self.puzzleSolver.solve(first_indices)
 
         if  message.startswith("New indices:"):
             index_part = message.split(": ")[1].strip("[]")
@@ -70,6 +70,11 @@ class Server(tornado.websocket.WebSocketHandler):
                 elif len(swaps) > 2 or len(swaps)<1:
                     raise Exception("Too many or too little actions")
                 else:
+                    
+                    if not play_well:
+                        Server.forward_message(self, "Uncorrect move")
+                    else:
+                        Server.forward_message(self, "Correct")
                     swap = swaps[0]
                     pos1, pos2 = swap[0], swap[1]
                     mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)

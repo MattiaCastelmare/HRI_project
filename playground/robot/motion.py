@@ -269,7 +269,25 @@ def new_talk(robot, n_hands = 2):
         jointNames.append("LElbowYaw")
         jointValues.append(-2.7)
         times.append(0.6)
+        
+# PEPPER MOVES WHEN USER DOES A GOOD MOVE
+def cheering(robot, which='R'): # or 'R'/'L' for right/left arm
+    session = robot.service("ALMotion")
 
+    # Store the initial joint values
+    if (which=='R'):
+        jointNames = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw", "RHand"]
+        initialJointValues = session.getAngles(jointNames, True)
+
+        # Perform the cheering motion
+        jointValues = [-0.1, 0.2, 1.57, 1.57, 1.0, -1.0]  # Added RWristYaw and RHand
+        times = [1]*len(jointNames)  # Added time for the hand
+        isAbsolute = True
+        session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
+
+        # Return to the initial position as fast as possible
+        session.angleInterpolation(jointNames, initialJointValues, times, isAbsolute)
+    return
 
 # SENTENCES
 def sentences(index):
@@ -296,6 +314,23 @@ def difficulties(index):
             "hard" 
         ]
     return difficulty[index]
+
+# GOOD SENTENCES
+def good_sentences():
+    good_sentences = [
+        "Great move!",
+        "Keep it up!",
+        "Well done"
+    ]
+    return random.choice(good_sentences)
+
+def bad_sentences():
+    bad_sentences = [
+        "Pay attention!",
+        "Ops.. it seems you made an error",
+        "Maybe this move is not the best one I here to help you!"
+    ]
+    return random.choice(bad_sentences)
 
 def initialize_robot():
     pip = os.getenv('PEPPER_IP')
@@ -448,7 +483,22 @@ def makes_move_for_you(session, tts_service):
     move_talk(robot=session, text=sentence, char="talk", service=tts_service)
 ##########################################################################################################
 
-
+############# PEPPER CHEERS FOR YOUR CORRECT MOVE ########################################################
+def cheer_move(session, tts_service):
+    sentence = good_sentences()
+    char = "good move"
+    random_number = random.random()
+    if random_number > 0.7:
+        char = " "
+    move_talk(robot=session, text=sentence, char=char, service=tts_service)
+##########################################################################################################
+    
+############# PEPPER TELLS YOU INCORRECT MOVE ############################################################    
+def bad_move(session, tts_service):
+    sentence = bad_sentences()
+    char = "bad move"
+    move_talk(robot=session, text=sentence, char=char, service=tts_service)
+##########################################################################################################
 
 ############## PEPPER MAKES THE FINAL DANCE TO CELEBRATE THE VICTORY #####################################    
 def final(description , session, tts_service ):

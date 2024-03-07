@@ -19,6 +19,7 @@ class Planning():
             print("The plan is: ", plan)
             # Compute the number of action need to resolve the puzzle
             num_action = len(plan)
+            play_well = self.count_errors(num_actions=num_action)
             self.count_errors(num_actions=num_action)
             swaps.append(self.generate_swap(action=plan[0]))
             if self.num_error == 3:
@@ -26,7 +27,7 @@ class Planning():
                 # Reset counter 
                 self.num_error = 0
             self.oldPlan_len = num_action
-            return swaps
+            return swaps, play_well
 
     def generate_plan(self):
         # Define Parser
@@ -61,7 +62,8 @@ class Planning():
             return False
 
     def count_errors(self, num_actions):
-        
         if num_actions >= self.oldPlan_len:
             self.num_error += 1
+            return False
         print(f"The number of user's errors are: {self.num_error}")
+        return True
