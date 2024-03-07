@@ -10,7 +10,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 class Server(tornado.websocket.WebSocketHandler):
     clients = []
-    puzzleSolver = Planning(algorithm_name=algorithm_name, heuristic_name=heuristic_name)
+    puzzleSolver = None 
    
     def open(self):
         # Extract client name from the URL
@@ -47,6 +47,8 @@ class Server(tornado.websocket.WebSocketHandler):
             Server.forward_message(self,message)
 
         if message.startswith("Initial random indices:"):
+            #initialize Planning
+            self.puzzleSolver = Planning(algorithm_name=algorithm_name, heuristic_name=heuristic_name)
             # Divide the string in two parts
             index_part = message.split(": ")[1].strip("[]")
             # Put the indices in a list
@@ -83,7 +85,8 @@ class Server(tornado.websocket.WebSocketHandler):
                 Server.forward_message(self, "Game Finished ")
 
         if message.startswith("Answer is: "):
-            if message.endswith("yes"):   
+            if message.endswith("yes"): 
+                self.puzzleSolver.num_error -= 1  
                 swap = moves[0]
                 pos1, pos2 = swap[0], swap[1]
                 mess_toSend =  "PepperMove:" + str(pos1) + ',' + str(pos2)
