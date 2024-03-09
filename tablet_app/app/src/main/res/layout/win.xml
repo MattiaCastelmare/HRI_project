@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:text="Congratulations you solved the puzzle!"
-        android:textColor="@color/purple_500"
-        android:textSize="33sp"
+        android:text="Congratulations "
+        android:textColor="@color/yellow"
 
+        android:textSize="33sp"
         app:fontFamily="@font/rubik"
+        app:layout_constraintBottom_toTopOf="@+id/solved_puzzle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,30 +24,23 @@
         android:id="@+id/solved_puzzle"
         android:layout_width="281dp"
         android:layout_height="234dp"
-        android:layout_marginTop="72dp"
-        app:layout_constraintBottom_toTopOf="@+id/play_again"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/play_again"
-        android:layout_width="189dp"
-        android:layout_height="109dp"
-        android:layout_marginBottom="60dp"
-        android:text="PLAY AGAIN"
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" you solved the puzzle!"
         android:textColor="@color/yellow"
-        android:textSize="29sp"
-        app:backgroundTint="@color/purple_500"
-        app:cornerRadius="15dp"
 
+        android:textSize="33sp"
         app:fontFamily="@font/rubik"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/solved_puzzle"
-        app:layout_constraintVertical_bias="0.849"
-        app:strokeColor="@color/yellow"
-        app:strokeWidth="3dp" />
+        app:layout_constraintTop_toBottomOf="@+id/solved_puzzle" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

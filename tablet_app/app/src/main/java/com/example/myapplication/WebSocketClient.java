@@ -33,6 +33,9 @@ public class WebSocketClient extends WebSocketListener {
         if (text.equals("User wants to play")){
             activity.openLayoutQuestionnaire();
         }
+        if (text.equals("Go back waiting")){
+            activity.openLayoutGreetings();
+        }
         if (text.startsWith("The suggested difficulty is:")){
             // Extract the difficulty part from the message
             String difficulty =  text.substring("The suggested difficulty is:".length()).trim();

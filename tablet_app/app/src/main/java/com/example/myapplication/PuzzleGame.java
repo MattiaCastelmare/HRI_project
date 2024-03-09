@@ -51,8 +51,8 @@ public class PuzzleGame {
                                         ImageView imageView = mainActivity.findViewById(R.id.solved_puzzle);
                                         imageView.setImageResource(imageId);
                                         // Restart by choosing the difficulty
-                                        Button play_again = mainActivity.findViewById(R.id.play_again);
-                                        play_again.setOnClickListener(view -> mainActivity.openLayoutDifficulty(null));
+                                        //Button play_again = mainActivity.findViewById(R.id.play_again);
+                                        //play_again.setOnClickListener(view -> mainActivity.openLayoutDifficulty(null));
                                 });
                                 timer.cancel();
                                 timer.purge();

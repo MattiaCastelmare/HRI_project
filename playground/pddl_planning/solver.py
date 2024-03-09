@@ -15,7 +15,7 @@ class Planning():
             generate_pddl_file(index_list)
             plan = self.generate_plan()
             if self.check_empty_plan(plan):
-                return None
+                return None, None
             print("The plan is: ", plan)
             # Compute the number of action need to resolve the puzzle
             num_action = len(plan)
@@ -61,10 +61,10 @@ class Planning():
             return False
 
     def count_errors(self, num_actions):
-        print("\nNUM ERRORS:", self.num_error)
         if num_actions >= self.oldPlan_len:
             print("\nONE ERROR MADE")
             self.num_error += 1
+            print("\nNUM ERRORS:", self.num_error)
             return False
-        print(f"The number of user's errors are: {self.num_error}")
+        print("\nNUM ERRORS:", self.num_error)
         return True
