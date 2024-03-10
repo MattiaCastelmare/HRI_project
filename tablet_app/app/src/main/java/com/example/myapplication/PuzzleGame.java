@@ -37,7 +37,7 @@ public class PuzzleGame {
                 this.indices = puzzleLayout.initial_indices;;
                 this.webSocketClient = webSocketClient;
                 this.adapter= puzzleLayout.adapter;
-                this.imageId = puzzleLayout.chosen_images[puzzleLayout.random_id];
+                this.imageId = puzzleLayout.imageid;
                 initializeGridView();
                 timer.schedule(new CheckIndicesTask(), 1000, 100); // period (in milliseconds)
         }

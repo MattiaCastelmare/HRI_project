@@ -29,7 +29,10 @@ class ClientPepper:
 
     # STOPS CLIENT
     def stop(self):
-        self.io_loop.stop()
+        print("Stopping I/O loop...")
+        self.io_loop.add_callback(self.io_loop.stop)
+        #self.io_loop.stop()
+        #self.io_loop.close()
 
     # INITIALIZES CONNECTION
     def connect_and_read(self):
@@ -50,6 +53,7 @@ class ClientPepper:
         except:
             print("\nCLIENT THREAD: Could not reconnect, retrying in 3 seconds...")
             self.io_loop.call_later(3, self.connect_and_read)
+
     
     # RETRIEVE THE ROBOT CLASS
     def get_robot(self, robotClass):
@@ -105,13 +109,9 @@ def start_client(event):
     io_loop = tornado.ioloop.IOLoop.current()
     pepperClient = ClientPepper(io_loop=io_loop)
     io_loop.add_callback(pepperClient.start)
+    # After the initialization set the timer
     event.set()
-    try:
-        io_loop.start()
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt ...")
-    finally:
-        io_loop.stop()
+    io_loop.start()
 
 ############################# CONNECT TO SERVER IN ANOTHER THREAD #############################################################
 def connect_to_server():

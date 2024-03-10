@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Congratulations "
-        android:textColor="@color/yellow"
+        android:textColor="@color/white"
 
         android:textSize="33sp"
         app:fontFamily="@font/rubik"
@@ -22,8 +22,8 @@
 
     <ImageView
         android:id="@+id/solved_puzzle"
-        android:layout_width="281dp"
-        android:layout_height="234dp"
+        android:layout_width="634dp"
+        android:layout_height="259dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=" you solved the puzzle!"
-        android:textColor="@color/yellow"
+        android:textColor="@color/white"
 
         android:textSize="33sp"
         app:fontFamily="@font/rubik"

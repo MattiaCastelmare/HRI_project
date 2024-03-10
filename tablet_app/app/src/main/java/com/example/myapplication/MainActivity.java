@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Button;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.content.Context;
 import java.util.List;
@@ -37,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+        //setContentView(R.layout.win);
+        //ImageView imageView = findViewById(R.id.solved_puzzle);
+        //imageView.setImageResource(2131165320);
 
         // GREETINGS background
         setContentView(R.layout.greetings);

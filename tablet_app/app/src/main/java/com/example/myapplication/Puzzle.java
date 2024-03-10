@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class Puzzle {
     int screenWidth, screenHeight;
@@ -25,6 +26,7 @@ public class Puzzle {
     int [] chosen_images;
     private final Context context;
     private final Activity parentActivity;
+    public final int imageid;
     ArrayList<Piece> pieces;
     PieceAdapter adapter;
     StaggeredGridLayoutManager layoutManager;
@@ -37,13 +39,13 @@ public class Puzzle {
         this.screenWidth = resolution[1];
         this.difficulty = difficulty;
         this.chosen_images = chooseDifficulty(difficulty);
-        getRandomImage(chosen_images);
+        this.imageid = getRandomImage(chosen_images);
         ResizeImage();
-        setRandomImage(chosen_images);
+        setRandomImage();
         this.pieces = splitImage();
         addPiecesGrid(pieces);
     }
-    public void setRandomImage(int[] images) {
+    public void setRandomImage() {
         // Get the ImageView
         parentActivity.setContentView(R.layout.variable_image_layout);
         ImageView mImageView = parentActivity.findViewById(R.id.intact_image);
@@ -52,11 +54,14 @@ public class Puzzle {
         layoutParams.width = imageWidth;
         layoutParams.height = imageHeight;
         // Set the image
-        mImageView.setImageResource(images[random_id]);
+        mImageView.setImageResource(imageid);
     }
-    public void getRandomImage(int[] images) {
+    public int getRandomImage(int[] images) {
         // Get a random between 0 and images.length-1
-        random_id = (int) (Math.random() * images.length);
+        Random random = new Random();
+        int random_id = random.nextInt(images.length);
+        Log.d(Constants.TAG, "id: " + random_id);
+        Log.d(Constants.TAG, "image: " + images[random_id]);
         // Decode the image to obtain its dimensions
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -65,6 +70,7 @@ public class Puzzle {
         imageWidth = options.outWidth;
         imageHeight = options.outHeight;
         Log.d(Constants.TAG, "IMAGE Width: " + imageWidth + ", Height: " + imageHeight);
+        return images[random_id];
     }
     public void ResizeImage() {
         // Check if both dimensions are larger than the screen

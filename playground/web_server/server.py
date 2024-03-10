@@ -161,11 +161,13 @@ def make_app():
 def main():
     app = make_app()
     app.listen(server_port)
+    server = tornado.httpserver.HTTPServer(app)
     try:
         tornado.ioloop.IOLoop.current().start()
     except KeyboardInterrupt:
         print("Keyboard Interrupt ...")
         tornado.ioloop.IOLoop.current().stop()
+        server.stop()
 
 if __name__ == "__main__":
     main()

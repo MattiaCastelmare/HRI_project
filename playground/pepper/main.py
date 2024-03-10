@@ -15,7 +15,7 @@ pepperClient = None
 
 ############################################ MAIN #####################################################################
 def main():
-    global pepperRobot, pepperClient
+    global pepperRobot, pepperClient, client_thread
     # INITIALIZE PEPPER SIMULATION 
     session, tts_service = initialize_robot()
     
@@ -140,4 +140,8 @@ def puzzle_completed():
 
 ################################################### RUN #################################################################
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Main Thread Keyboard Interrupt ...")
+        pepperClient.stop()
