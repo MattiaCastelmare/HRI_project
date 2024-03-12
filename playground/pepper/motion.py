@@ -6,7 +6,7 @@ sys.path.append(os.getenv('PEPPER_TOOLS_HOME') + '/cmd_server')
 from pepper_cmd import *
 from utils import *
 
-# LOOK ACTION 
+# Action that moves the head of the robot 
 def look(robot, direction):
     session = robot.service("ALMotion")
     jointNames = ["HeadYaw", "HeadPitch"]
@@ -21,13 +21,13 @@ def look(robot, direction):
         session.angleInterpolation(jointNames, finalAngles, timeLists, isAbsolute)
     return
 
-# SAYING NO
+# Action that makes the robot saying "no" with its head
 def no_with_head(robot):
     look(robot, "left")
     look(robot, "right")
     return
 
-# RAISE ARM
+# Action that makes the robot raising its hand above the head
 def raiseArm(robot, which='R'): # or 'R'/'L' for right/left arm
     session = robot.service("ALMotion")
     if (which=='R'):
@@ -43,7 +43,7 @@ def raiseArm(robot, which='R'): # or 'R'/'L' for right/left arm
         session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
     return
 
-# RAISE ARM
+# Action that makes the robot raising its hands above the head
 def raiseArms(robot): 
     session = robot.service("ALMotion")
     jointNames = ["RShoulderPitch", "RShoulderRoll", "RElbowYaw", "RElbowRoll", "RWristYaw",
@@ -58,7 +58,7 @@ def raiseArms(robot):
         session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
     return
 
-# WAVING ARM
+# Action that makes the robot waving one hand
 def waveArm(robot, which = "R"): 
     session = robot.service("ALMotion")
     if which == 'R':
@@ -76,7 +76,7 @@ def waveArm(robot, which = "R"):
             session.angleInterpolation(jointNames, jointValues_left, time_waving, isAbsolute)
     return
 
-# MOVE AND GREET
+# Action that makes the robot greeting with one hand
 def move_greeting(robot):
   session = robot.service("ALMotion")
   isAbsolute = True
@@ -97,12 +97,12 @@ def move_greeting(robot):
 
   return
 
-# GOODBYE
+# Action that makes the robot saying goodbye
 def goodbye(robot):
     raiseArm(robot, "R")
     waveArm(robot, "R")
     return
-
+# Action that makes the robot dancing at the end of game
 def final_dance(robot):
     session = robot.service("ALMotion")
     jointNames = ["RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RWristYaw", "RHand", "HipRoll", "HeadPitch", "LShoulderPitch", "LShoulderRoll", "LElbowRoll", "LWristYaw", "LHand"]
@@ -127,28 +127,7 @@ def final_dance(robot):
         session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
     return
 
-# DANCE
-def dance(robot):
-    session = robot.service("ALMotion")
-    jointNames = ["RShoulderPitch", "RShoulderRoll", "RElbowRoll", "RWristYaw", "RHand", "HipRoll", "HeadPitch", "LShoulderPitch", "LShoulderRoll", "LElbowRoll", "LWristYaw", "LHand"]
-    jointValues = [-0.141, -0.46, 0.892, -0.8, 0.98, -0.07, -0.07, -0.141, 0.46, -0.892, 0.8, -0.98]
-    times  = [2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0]
-    isAbsolute = True
-    session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
-    for i in range(2):
-            jointNames = ["RElbowYaw", "LElbowYaw", "HipRoll", "HeadPitch"]
-            jointValues = [2.7, -1.3, -0.07, -0.07]
-            times  = [0.8, 0.8, 0.8, 0.8]
-            isAbsolute = True
-            session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
-            jointNames = ["RElbowYaw", "LElbowYaw", "HipRoll", "HeadPitch"]
-            jointValues = [1.3, -2.7, -0.07, -0.07]
-            times  = [0.8, 0.8, 0.8, 0.8]
-            isAbsolute = True
-            session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
-            return  
-
-# NORMAL TALK
+# Action that makes the robot normal talking
 def talk(robot, n_hands = 2):
     session = robot.service("ALMotion")
     isAbsolute = True
@@ -173,6 +152,7 @@ def talk(robot, n_hands = 2):
         jointValues.append(-2.7)
         times.append(0.6)
 
+# Action that makes the robot showing the tablet before starting
 def show(robot, n_hands=2):
     session = robot.service("ALMotion")
     isAbsolute = True
@@ -190,7 +170,7 @@ def show(robot, n_hands=2):
     for i in range(3):
         session.angleInterpolation(jointNames, jointValues, times, isAbsolute)
 
-# TALK WITH ONLY ONE ARM AND HAND MOVING
+# Action that makes the robot talking with only one hand
 def new_talk(robot, n_hands = 2):
     session = robot.service("ALMotion")
     isAbsolute = True
@@ -212,7 +192,7 @@ def new_talk(robot, n_hands = 2):
         jointValues.append(-2.7)
         times.append(0.6)
         
-# PEPPER MOVES WHEN USER DOES A GOOD MOVE
+# Action that makes the robot moving and saying something good to the user when it does a good move
 def cheering(robot, which='R'): # or 'R'/'L' for right/left arm
     session = robot.service("ALMotion")
 
@@ -231,6 +211,7 @@ def cheering(robot, which='R'): # or 'R'/'L' for right/left arm
         session.angleInterpolation(jointNames, initialJointValues, times, isAbsolute)
     return
 
+# Initalization of the robot
 def initialize_robot():
     pip = os.getenv('PEPPER_IP')
 
@@ -243,10 +224,10 @@ def initialize_robot():
     session = app.session 
 
     tts_service = session.service("ALAnimatedSpeech")
-    configuration = {"bodyLanguageMode":"disabled"} 
 
     return session, tts_service
 
+# Different action combined with the speech
 def move_talk(robot, text, char, service):
 
     if char == "greeting":
@@ -258,15 +239,6 @@ def move_talk(robot, text, char, service):
     if char == "new talk":
         new_talk(robot)
         
-    if char == "talk1":
-        talking1(robot)
-
-    if char == "talk2":
-        talking2(robot)
-
-    if char == "talk3":
-        talking3(robot)
-
     if char =="good move":
         cheering(robot)
         
@@ -288,12 +260,3 @@ def move_talk(robot, text, char, service):
     return
 
 ############################################################################################################################    
-
-if __name__ == '__main__':
-    pip = os.getenv('PEPPER_IP')
-    pport = 9559
-    url = "tcp://" + pip + ":" + str(pport)
-    app = qi.Application(["App", "--qi-url=" + url])
-    app.start()
-    session = app.session   
-
