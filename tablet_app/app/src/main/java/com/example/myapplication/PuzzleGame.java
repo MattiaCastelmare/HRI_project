@@ -23,7 +23,7 @@ public class PuzzleGame {
         private final PieceAdapter adapter;
         private final RecyclerView recyclerView;
         private final WebSocketClient webSocketClient;
-        private int lastClickedPosition = 0;
+        private int lastClickedPosition = -1;
         private final Timer timer = new Timer();
         private final int imageId;
         private final List<Integer> indices;
@@ -34,7 +34,7 @@ public class PuzzleGame {
                 this.mainActivity = (MainActivity) context;
                 this.recyclerView = mainActivity.findViewById(R.id.grid);
                 // Create dynamic class to modify it
-                this.indices = puzzleLayout.initial_indices;;
+                this.indices = puzzleLayout.initial_indices;
                 this.webSocketClient = webSocketClient;
                 this.adapter= puzzleLayout.adapter;
                 this.imageId = puzzleLayout.imageid;
@@ -51,7 +51,7 @@ public class PuzzleGame {
                                         ImageView imageView = mainActivity.findViewById(R.id.solved_puzzle);
                                         imageView.setImageResource(imageId);
                                         // Restart by choosing the difficulty
-                                        //Button play_again = mainActivity.findViewById(R.id.play_again);
+                                        // Button play_again = mainActivity.findViewById(R.id.play_again);
                                         //play_again.setOnClickListener(view -> mainActivity.openLayoutDifficulty(null));
                                 });
                                 timer.cancel();
@@ -87,26 +87,33 @@ public class PuzzleGame {
                 }
                 return true;
         }
-        private void handleItemClick(int position) {
+        private void handleItemClick(int position)  {
                 // Check if it's the first click
                 if (adapter.getFirstClickedPosition() == -1) {
                         //Get the original index from the Piece object associated with the clicked position
                         int originalIndex = indices.get(position);
                         adapter.setFirstClickedPosition(position);
+                        if (lastClickedPosition != -1) {
+                                unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
+                        }
                         highlightView(Objects.requireNonNull(findImageViewByIndex(position)));
-                        unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
                         lastClickedPosition = position;
                         Log.d(Constants.TAG, "First click at position: " + position + "with tag" + originalIndex);
                 } else {
-                        // It's the second click
                         int firstClickedPosition = adapter.getFirstClickedPosition();
-                        Log.d(Constants.TAG, "Second click at positions: " + firstClickedPosition + " and " + position);
-                        highlightView(Objects.requireNonNull(findImageViewByIndex(position)));
-                        unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
-                        swapImages(firstClickedPosition, position);
-                        // Reset for the next set of clicks
-                        adapter.setFirstClickedPosition(-1);
-                        lastClickedPosition = position;
+                        if (firstClickedPosition == position){
+                                // Do nothing if the click is in the same piece as the first
+                                Log.d(Constants.TAG, "Second click at the same position");
+                        }
+                        else{   // It's the second click
+                                Log.d(Constants.TAG, "Second click at positions: " + firstClickedPosition + " and " + position);
+                                highlightView(Objects.requireNonNull(findImageViewByIndex(position)));
+                                unhighlightView(Objects.requireNonNull(findImageViewByIndex(lastClickedPosition)));
+                                swapImages(firstClickedPosition, position);
+                                // Reset for the next set of clicks
+                                adapter.setFirstClickedPosition(-1);
+                                lastClickedPosition = position;
+                        }
                 }
         }
 
