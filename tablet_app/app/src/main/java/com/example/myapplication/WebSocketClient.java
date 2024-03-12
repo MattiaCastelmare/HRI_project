@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.util.Log;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -71,6 +73,7 @@ public class WebSocketClient extends WebSocketListener {
 
     public void sendMessage(String message) {
         webSocket.send(message);
+        Log.d(Constants.TAG, "Sent to Server: " + message);
     }
 
 }
