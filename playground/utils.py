@@ -56,12 +56,12 @@ def sentences(index):
         "From 1 to 5 how much do you like solving logic problems?",
         "How patient are you when it comes to solving puzzles?",
         "How much do you like art?",
-        "According to what you have said I have chosen the easy level jigsaw puzzle for you.",
-        "According to what you have said I have chosen the medium level jigsaw puzzle for you.",
-        "According to what you have said I have chosen the hard level jigsaw puzzle for you.",
+        "According to what you have said I have chosen the EASY level jigsaw puzzle for you.",
+        "According to what you have said I have chosen the MEDIUM level jigsaw puzzle for you.",
+        "According to what you have said I have chosen the HARD level jigsaw puzzle for you.",
         "You made 3 incorrect moves, can I help you by doing 2 correct moves?",
-        "You have completed the jigsaw puzzle, congratulation!",
-        "Goodbye, it was a pleasure playing with you.",
+        "You have completed the puzzle, congratulation!",
+        "Goodbye! Come closer again if you decide to play with me!",
         "Great! Let's play together. "
     ]
     return sentence[index]
@@ -89,7 +89,7 @@ def bad_sentences():
     bad_sentences = [
         "Pay attention!",
         "Ops.. it seems you made an error",
-        "Maybe this move is not the best one I here to help you!"
+        "Maybe this move is not the best one I am here to help you!"
     ]
     return random.choice(bad_sentences)
 
