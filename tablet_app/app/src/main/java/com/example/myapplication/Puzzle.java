@@ -177,7 +177,7 @@ class PieceAdapter extends RecyclerView.Adapter<PieceAdapter.PieceViewHolder> {
         return firstClickedPosition;
     }
     public View.OnDragListener getDragListener() { return dragListener; }
-    public interface OnItemClickListener { void onItemClick(int position); }
+    public interface OnItemClickListener { void onItemClick(int position) throws InterruptedException; }
     public void setFirstClickedPosition(int position) {
         firstClickedPosition = position;
     }
@@ -215,7 +215,11 @@ class PieceAdapter extends RecyclerView.Adapter<PieceAdapter.PieceViewHolder> {
             if (listener != null) {
                 int adapterPosition = holder.getAdapterPosition();
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    listener.onItemClick(adapterPosition);
+                    try {
+                        listener.onItemClick(adapterPosition);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
