@@ -8,7 +8,7 @@ import random, re
 
 ############################################# SHARED CONSTANTS #####################################################
 # Set the Server IP as the local host (of my PC)
-IPAddress = "0.0.0.0" # CONNECT TO ALL PORTS
+IPAddress = "0.0.0.0" # ACCEPT ALL CONNECTIONS 
 server_port = "8888"
 websocket_address = "ws://"+IPAddress+":"+ server_port + "/websocket"
 print("The server has address: " + websocket_address)
