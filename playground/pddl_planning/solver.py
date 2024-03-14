@@ -25,7 +25,7 @@ class Planning():
                 plan = self.generate_plan16()
             if self.check_empty_plan(plan):
                 return None, None
-            print("The plan is: ", plan + "with len:" + str(len(plan)))
+            print(f"The plan is: {plan} with len: {(len(plan))}")
             # Compute the number of action need to resolve the puzzle
             num_action = len(plan)
             play_well = self.count_errors(num_actions=num_action)
@@ -42,7 +42,7 @@ class Planning():
         reader = PDDLReader()
         pddl_problem = reader.parse_problem(self.domain_file, self.problem_file)
         #pddl_problem.environment.factory.add_engine(name = "lpg", module_name = "up_lpg.lpg_planner", class_name = "LPGEngine")
-        with OneshotPlanner(name='fast-downward') as planner: 
+        with OneshotPlanner(name='lpg') as planner: 
                 result = planner.solve(pddl_problem, timeout=30)        
         # Itera attraverso le azioni nel piano 
         for action in result.plan.actions: 

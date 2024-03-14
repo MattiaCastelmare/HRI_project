@@ -126,7 +126,7 @@ def puzzle_completed():
     pepperRobot.final(description=painting_text)
     # ASKS USER IF HE WANTS TO PLAY AGAIN
     play_again = input_with_timeout("\nMAIN: Enter yes to play again: (yes, no): ",  timeout)
-    if play_again and play_again.lower() == "yes":
+    if play_again is not None and play_again.lower() == "yes":
         # GO BACK TO THE CHOOSEN DIFFICULTY SCHERMATA
         pepperClient.send_message_from_client("Play again")
         check_win()
