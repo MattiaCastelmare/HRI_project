@@ -1,4 +1,8 @@
 from pddl_planning.definition import *
+# Import the PDDLReader and PDDLWriter classes 
+import unified_planning
+from unified_planning.shortcuts import *
+from unified_planning.io.pddl_reader import PDDLReader
 
 class Planning():
     def __init__(self, algorithm_name, heuristic_name):
@@ -13,10 +17,15 @@ class Planning():
             swaps = []
             # Generate the new pddl files and execute the new pddl
             generate_pddl_file(index_list)
-            plan = self.generate_plan()
+            # DIFFFICULTY EASY OR MEDIUM ONLY 9 PIECES
+            if len(index_list) == 9:
+                plan = self.generate_plan()
+            # DIFFFICULTY HARD 16 PIECES
+            if len(index_list)== 16:
+                plan = self.generate_plan16()
             if self.check_empty_plan(plan):
                 return None, None
-            print("The plan is: ", plan)
+            print("The plan is: ", plan + "with len:" + str(len(plan)))
             # Compute the number of action need to resolve the puzzle
             num_action = len(plan)
             play_well = self.count_errors(num_actions=num_action)
@@ -27,6 +36,19 @@ class Planning():
                 self.num_error = 0
             self.oldPlan_len = num_action
             return swaps, play_well
+    
+    def generate_plan16(self):
+        plan = []
+        reader = PDDLReader()
+        pddl_problem = reader.parse_problem(self.domain_file, self.problem_file)
+        #pddl_problem.environment.factory.add_engine(name = "lpg", module_name = "up_lpg.lpg_planner", class_name = "LPGEngine")
+        with OneshotPlanner(name='fast-downward') as planner: 
+                result = planner.solve(pddl_problem, timeout=30)        
+        # Itera attraverso le azioni nel piano 
+        for action in result.plan.actions: 
+            # Aggiungi la rappresentazione stringa dell'azione alla lista 
+            plan.append(str(action))
+        return plan
 
     def generate_plan(self):
         # Define Parser
