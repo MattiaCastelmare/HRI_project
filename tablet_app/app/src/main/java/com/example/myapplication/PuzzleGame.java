@@ -27,6 +27,7 @@ public class PuzzleGame {
         private final Timer timer = new Timer();
         private final int imageId;
         private final List<Integer> indices;
+        private final int cols;
 
         // Constructor
         public PuzzleGame(Puzzle puzzleLayout, Context context, WebSocketClient webSocketClient) {
@@ -38,6 +39,7 @@ public class PuzzleGame {
                 this.webSocketClient = webSocketClient;
                 this.adapter= puzzleLayout.adapter;
                 this.imageId = puzzleLayout.imageid;
+                this.cols = Puzzle.cols;
                 initializeGridView();
                 timer.schedule(new CheckIndicesTask(), 1000, 100); // period (in milliseconds)
         }
@@ -65,7 +67,7 @@ public class PuzzleGame {
                 webSocketClient.sendMessage("Painting name:" + fileName);
                 System.out.println("Sending to server the name of painting"  + fileName);
                 // Attach the adapter and layout manager to the RecyclerView
-                StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(Constants.cols, StaggeredGridLayoutManager.HORIZONTAL);
+                StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(cols, StaggeredGridLayoutManager.HORIZONTAL);
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(adapter);
                 recyclerView.addItemDecoration(new SpacesItemDecoration(2));

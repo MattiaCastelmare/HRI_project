@@ -22,8 +22,11 @@ public class Puzzle {
     int screenWidth, screenHeight;
     int imageHeight, imageWidth;
     int pieceWidth, pieceHeight;
-    int random_id, count, difficulty;
+    int count, difficulty;
     int [] chosen_images;
+    private static int number_of_pieces;
+    private static int rows;
+    public static  int cols;
     private final Context context;
     private final Activity parentActivity;
     public final int imageid;
@@ -86,35 +89,44 @@ public class Puzzle {
     }
     public int[] chooseDifficulty(int difficulty) {
         if (difficulty == 1) {
+            number_of_pieces = 9;
+            rows = 3;
+            cols = 3;
             return Constants.EASY_IMAGES;
         } else if (difficulty == 2) {
+            number_of_pieces = 9;
+            rows = 3;
+            cols = 3;
             return Constants.MEDIUM_IMAGES;
         } else if (difficulty == 3) {
+            number_of_pieces = 16;
+            rows = 4;
+            cols = 4;
             return Constants.DIFFICULT_IMAGES;
         } else {
             throw new IllegalArgumentException("Invalid difficulty level: " + difficulty);
         }
     }
     private ArrayList<Piece> splitImage() {
-        ArrayList<Piece> pieces = new ArrayList<>(Constants.number_of_pieces);
+        ArrayList<Piece> pieces = new ArrayList<>(number_of_pieces);
         final ImageView imageView = parentActivity.findViewById(R.id.intact_image);
         BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
         Bitmap bitmap = drawable.getBitmap();
         // scale the image
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, imageWidth, imageHeight, true);
         // Compute H W of pieces
-        pieceWidth = (imageWidth / Constants.cols) - 1;
-        pieceHeight = (imageHeight / Constants.rows) - 1;
+        pieceWidth = (imageWidth / cols) - 1;
+        pieceHeight = (imageHeight / rows) - 1;
         Log.d(Constants.TAG, "Piece Width: " + pieceWidth);
         Log.d(Constants.TAG, "Piece Height: " + pieceHeight);
         // Create each bitmap piece and add it to the resulting array
         int xCord = 0;
-        for (int col = 0; col < Constants.cols; col++)  {
+        for (int col = 0; col < cols; col++)  {
             int yCord = 0;
-            for (int row = 0; row < Constants.rows; row++) {
+            for (int row = 0; row <rows; row++) {
                 //Log.d(Constants.TAG, "X: " + xCord + " Y: " + yCord);
                 // Calculate the index based on column-wise counting
-                int pieceIndex = col * Constants.rows + row;
+                int pieceIndex = col * rows + row;
                 Log.d(Constants.TAG, "index: " + pieceIndex + " row: " + row + " col: " + col);
                 Piece piece = new Piece(Bitmap.createBitmap(scaledBitmap, xCord, yCord, pieceWidth, pieceHeight), pieceIndex);
                 pieces.add(piece);
@@ -135,7 +147,7 @@ public class Puzzle {
         parentActivity.setContentView(R.layout.activity_main);
         final RecyclerView recyclerView = parentActivity.findViewById(R.id.grid);
         // Create a StaggeredGridLayoutManager with 3 columns
-        this.layoutManager = new StaggeredGridLayoutManager(Constants.cols, StaggeredGridLayoutManager.VERTICAL);
+        this.layoutManager = new StaggeredGridLayoutManager(cols, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         // Create an adapter for the RecyclerView
         this.adapter = new PieceAdapter(context, pieces, pieceWidth, pieceHeight);

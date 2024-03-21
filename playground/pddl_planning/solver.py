@@ -3,6 +3,7 @@ from pddl_planning.definition import *
 import unified_planning
 from unified_planning.shortcuts import *
 from unified_planning.io.pddl_reader import PDDLReader
+up.shortcuts.get_env().credits_stream = None
 
 class Planning():
     def __init__(self, algorithm_name, heuristic_name):
@@ -42,7 +43,7 @@ class Planning():
         reader = PDDLReader()
         pddl_problem = reader.parse_problem(self.domain_file, self.problem_file)
         #pddl_problem.environment.factory.add_engine(name = "lpg", module_name = "up_lpg.lpg_planner", class_name = "LPGEngine")
-        with OneshotPlanner(name='lpg') as planner: 
+        with OneshotPlanner(name='fast-downward') as planner: 
                 result = planner.solve(pddl_problem, timeout=30)        
         # Itera attraverso le azioni nel piano 
         for action in result.plan.actions: 
