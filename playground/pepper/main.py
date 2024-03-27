@@ -107,7 +107,7 @@ def get_painting_text(age):
         if age:
             if age<12:
                 painting_text = paintings_info[painting_name]['children']
-            if age<12:
+            else:
                 painting_text = paintings_info[painting_name]['adults']
         else:
             painting_text = paintings_info[painting_name]['children']
@@ -125,13 +125,16 @@ def puzzle_completed():
     # FINAL DANCE & TALKS ABOUT THE PAINTING
     pepperRobot.final(description=painting_text)
     # ASKS USER IF HE WANTS TO PLAY AGAIN
+    pepperRobot.asks_play_again()
     play_again = input_with_timeout("\nMAIN: Enter yes to play again: (yes, no): ",  timeout)
     if play_again is not None and play_again.lower() == "yes":
         # GO BACK TO THE CHOOSEN DIFFICULTY SCHERMATA
+        pepperRobot.show_tablet()
         pepperClient.send_message_from_client("Play again")
         check_win()
     else:
         # GO BACK TO WAITING (INITIAL STATE)
+        pepperRobot.goodbye_and_talk()
         pepperClient.send_message_from_client("Exit")
         pepperClient.stop_questions = False
         pepperClient.win_flag = False

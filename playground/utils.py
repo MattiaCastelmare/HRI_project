@@ -62,7 +62,8 @@ def sentences(index):
         "You made 3 incorrect moves, can I help you by doing 2 correct moves?",
         "You have completed the puzzle, congratulation!",
         "Goodbye! Come closer again if you decide to play with me!",
-        "Great! Let's play together. "
+        "Great! Let's play together. ",
+        "Do you want to play again?"
     ]
     return sentence[index]
 

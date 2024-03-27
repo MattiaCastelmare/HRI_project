@@ -121,6 +121,11 @@ class RobotPepper:
         move_talk(robot=self.session, text=sentence, char="final dance", service=self.tts_service)
         move_talk(robot=self.session, text=description, char="new talk", service=self.tts_service)
 
+    # PEPPER ASKS IF THE USER WANTS TO PLAY AGAIN
+    def asks_play_again(self):
+        sentence=sentences(13)
+        move_talk(robot=self.session, text=sentence, char="talk", service=self.tts_service)
+
     # PEPPER SAYS GOODBYE AT THE END OF THE GAME 
     def goodbye_and_talk(self):
         sentence = sentences(11)

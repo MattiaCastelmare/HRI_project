@@ -3,7 +3,7 @@ from pddl_planning.definition import *
 import unified_planning
 from unified_planning.shortcuts import *
 from unified_planning.io.pddl_reader import PDDLReader
-up.shortcuts.get_env().credits_stream = None
+# up.shortcuts.get_env().credits_stream = None
 
 class Planning():
     def __init__(self, algorithm_name, heuristic_name):
