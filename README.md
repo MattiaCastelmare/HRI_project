@@ -21,7 +21,7 @@ The system has three main components:
 ### 👥 Contributors
 
 -  [Mattia Castelmare](https://github.com/MattiaCastelmare)
--  
--  [Antoscardi](https://github.com/antoscardi)
+-  [Niccolò Piraino](https://github.com/Nickes10)
+-  [Antonio Scardino](https://github.com/antoscardi)
 
 ---
