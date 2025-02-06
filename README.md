@@ -10,7 +10,7 @@ The system has three main components:
 
 1. **🖥️ Server**: Handles the game logic, computes optimal solutions for the puzzle, and determines the best moves using an algorithm (to be specified). It also monitors user performance and provides assistance when needed.
 2. **📱 Android App**: Simulates Pepper’s tablet interface, providing an intuitive way for the human player to interact with the robot.
-3. **🚀 Robot Control (Docker)**: Manages Pepper’s movements using Docker and the official developer tools, allowing seamless execution of actions within the game environment.
+3. **🚀 Robot Control (Docker)**: Manages Pepper’s movements using Docker and the official developer tools, allowing the enhancement of the interation.
 
 ### 🎮 Features
 
