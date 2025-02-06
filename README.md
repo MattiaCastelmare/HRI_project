@@ -12,7 +12,7 @@ The project focuses on **human-robot collaboration** to solve a **puzzle game** 
   <img src="https://github.com/user-attachments/assets/37420790-cba5-4e98-9350-5adaf7401972" alt="schemaHri" width="300" height="auto">
 </p>
 
-This project aims to program a **humanoid robot** 🤖 to collaborate with users in solving puzzles representing **famous paintings from various periods of art history**. We chose to focus these puzzles on **art 🎨** because of its importance both as a means of personal expression.
+This project aims to program a **humanoid robot** 🤖 to collaborate with users in solving **art-based puzzles** representing **famous paintings from various periods of art history**. We chose to focus these puzzles on **art 🎨** because of its importance as a means of personal expression.
 
 Our robot, called **PepperART**, could be positioned inside an **art museum 🏛️**, engaging the public by proposing interactive puzzles. This aims to **increase fascination towards art for children** and provide adults with the chance to **learn interesting facts about the paintings**.
 
