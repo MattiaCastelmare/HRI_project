@@ -1,4 +1,4 @@
-## 🤖 Human Robot Interaction for Puzzle Solving
+## 🤖 PepperART
 
 This repository contains the project developed for the **"Human Robot Interaction" (HRI) and "Reasoning Agent" (RA)** courses at **La Sapienza University of Rome**, taught by **Prof. Luca Iocchi** and **Prof. Luca Patrizi**.
 
@@ -11,6 +11,7 @@ The system has three main components:
 1. **🖥️ Server**: Handles the game logic, computes optimal solutions for the puzzle, and determines the best moves using an algorithm (to be specified). It also monitors user performance and provides assistance when needed.
 2. **📱 Android App**: Simulates Pepper’s tablet interface, providing an intuitive way for the human player to interact with the robot.
 3. **🚀 Robot Control (Docker)**: Manages Pepper’s movements using Docker and the official developer tools, allowing the enhancement of the interation.
+<img width="584" alt="schemaHri" src="https://github.com/user-attachments/assets/e233ed0b-d1cd-40a1-bed2-c14de96585ee" />
 
 ### 🎮 Features
 
