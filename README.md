@@ -1,4 +1,4 @@
-## 🤖 HRI_Project
+## 🤖 Human Robot Interaction for Puzzle Solving
 
 This repository contains the project developed for the **"Human Robot Interaction" (HRI) and "Reasoning Agent" (RA)** courses at **La Sapienza University of Rome**, taught by **Prof. Luca Iocchi** and **Prof. Luca Patrizi**.
 
