@@ -20,8 +20,8 @@ The system has three main components:
 
 ### 👥 Contributors
 
-- **[Mattia Castelmare](#)** (GitHub profile link)
-- **[Niccolò Piraino](#)** (GitHub profile link)
-- **[Antonio Scardino](#)** (GitHub profile link)
+-  [Mattia Castelmare](https://github.com/MattiaCastelmare)
+-  
+-  [Antoscardi](https://github.com/antoscardi)
 
 ---
