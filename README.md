@@ -46,7 +46,7 @@ Regarding the **Reasoning Agent (RA)** part, the robot is able to **play the puz
 ### ▶️ Watch the Simulation
 https://github.com/user-attachments/assets/4bcc6cf4-ed8a-446b-a971-561184bab3d3
 
-### 👥 Contributors
+### 👥 Project Contributors
 
 -  [Mattia Castelmare](https://github.com/MattiaCastelmare)
 -  [Niccolò Piraino](https://github.com/Nickes10)
